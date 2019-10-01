@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../../logo.svg';
 import classes from './App.module.scss';
+import Test from './Test';
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,9 @@ const App: React.FC = () => {
           Learn React
         </a>
       </header>
+      <main>
+        <Test name="My test" />
+      </main>
     </div>
   );
 }
