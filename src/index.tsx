@@ -4,6 +4,10 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import App from './components/main/App';
 
+let hello: any = {}
+
+console.log(hello?.bar);
+
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
