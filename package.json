@@ -4,16 +4,20 @@
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.6.0",
+    "@material-ui/core": "^4.5.2",
     "@types/jest": "24.0.18",
     "@types/node": "12.7.8",
     "@types/react": "16.9.4",
     "@types/react-dom": "16.9.1",
-    "node-sass": "^4.12.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "@types/react-router": "^5.1.2",
+    "@types/react-router-dom": "^5.1.2",
+    "node-sass": "^4.13.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.1.2",
-    "typescript": "^3.7.0-beta"
+    "typescript": "^3.7.0-dev.20191021"
   },
   "scripts": {
     "start": "PORT=3540 react-app-rewired start",
@@ -38,6 +42,6 @@
   },
   "devDependencies": {
     "customize-cra": "^0.8.0",
-    "react-app-rewired": "^2.1.3"
+    "react-app-rewired": "^2.1.4"
   }
 }
