@@ -5,38 +5,30 @@ import HomePage from '../pages/Home/Home';
 import TeacherPage from '../pages/TeacherHome/Teacher';
 import RouterWrapper from './RouterWrapper';
 import StudentPage from '../pages/StudentHome/StudentHome';
-import SendMail from '../pages/SendMail/SendMail';
-import TeacherStudents from '../pages/TeacherStudents/TeacherStudents';
+import TeacherWrapper from '../shared/TeacherWrapper/TeacherWrapper';
 import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrapper';
-import AddStudent from '../pages/AddStudent/AddStudent';
 
 export default class AppRouter extends React.Component {
   render() {
     return (
       <Router>
         <Switch>
-          {/** Show students 
-            All data for student, selector for student (sort information, deletion...)
-           */}
-          <Route path="/teacher/student/all" component={TeacherStudents} />
-
-          {/** Add a new student (enter basic informations about him/her). */}
-          <Route path="/teacher/student/add" component={AddStudent} />
-
-          {/** Show student information 
+          {/** 
+            Show student information 
             Should be same page as /student, but with a selected specific student
             and more options (data that are not modifiable for students)
-           */}
-          <Route path="/teacher/student/:id" component={TeacherStudentWrapper} />
-
-          {/** Show teacher mailing page: Send group mail for students */}
-          <Route path="/teacher/mail" component={SendMail} /> 
+          */}
+          <Route path={`/teacher/dashboard/:id`} render={
+            (props: RouteComponentProps) => <TeacherWrapper component={TeacherStudentWrapper} {...props} />
+          } />
 
           {/** Show teacher home page
             Dashboard with stats (maybe), available students,
             map for companies, group mailing...
            */}
-          <Route path="/teacher/" component={TeacherPage} />  
+          <Route path="/teacher/" render={
+            (props: RouteComponentProps) => <TeacherWrapper component={TeacherPage} {...props} />
+          } />  
 
           {/** 
             Student page (for student)
