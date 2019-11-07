@@ -24,7 +24,6 @@ type TSState = {
   delete_modal_open: false | null | number;
 }
 
-// TODO Page to show and select all students
 export default class TeacherStudents extends React.Component<{}, TSState> {
   state: TSState = {
     page: 0,
@@ -95,7 +94,6 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     } catch (e) {
       toast("Impossible de supprimer l'étudiant.", "error");
     }
-
 
     this.setState({
       delete_modal_open: false,
@@ -221,6 +219,8 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
             page={this.state.page}
             onChangePage={this.handleChangePage}
             onChangeRowsPerPage={this.handleChangeRowsPerPage}
+            labelRowsPerPage="Lignes par page:"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
           />
         </Paper>
       </DashboardContainer>

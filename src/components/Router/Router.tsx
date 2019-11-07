@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect, Switch, RouteComponentProps } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, RouteComponentProps } from "react-router-dom";
 import NotFound from '../pages/NotFound/NotFound';
 import HomePage from '../pages/Home/Home';
 import TeacherPage from '../pages/TeacherHome/Teacher';
@@ -9,12 +9,16 @@ import TeacherWrapper from '../shared/TeacherWrapper/TeacherWrapper';
 import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrapper';
 import SignIn from '../pages/Login/Login';
 import LostToken from '../pages/Login/LostToken';
+import DashboardWrapper from '../shared/DashboardWrapper/DashboardWrapper';
 
 export default class AppRouter extends React.Component {
   render() {
     return (
       <Router>
         <Switch>
+          {/** Autoredirect for dashboard (teacher & student) */}
+          <Route path="/dashboard/" exact component={DashboardWrapper} />
+
           {/** 
             Show student information 
             Should be same page as /student, but with a selected specific student

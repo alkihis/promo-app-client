@@ -14,6 +14,7 @@ import AddStudentIcon from '@material-ui/icons/PersonAdd';
 import StatsIcon from '@material-ui/icons/InsertChart';
 import MailingIcon from '@material-ui/icons/Mail';
 import ResumeIcon from '@material-ui/icons/Public';
+import { ClassicModal } from '../../../helpers';
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
@@ -23,47 +24,57 @@ const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Statistiques": "stats"
 };
 
-function makeDrawerSections(location: Location, base: string) : DrawerSection[] {
-  return [{
-    items: [{
-      icon: ResumeIcon,
-      text: "Résumé",
-      selected: location.pathname === base + ROUTES_AVAILABLE['Résumé'],
-      linkTo: base
-    }, {
-      icon: StudentIcon,
-      text: "Étudiants",
-      selected: location.pathname === base + ROUTES_AVAILABLE['Étudiants'],
-      linkTo: base + "student/all"
-    }, {
-      icon: MailingIcon,
-      text: "Mail",
-      selected: location.pathname === base + ROUTES_AVAILABLE['Mail'],
-      linkTo: base + "mail"
-    }, {
-      icon: AddStudentIcon,
-      text: "Ajout d'étudiant",
-      selected: location.pathname === base + ROUTES_AVAILABLE["Ajout d'étudiant"],
-      linkTo: base + "student/add"
-    }, {
-      icon: StatsIcon,
-      text: "Statistiques",
-      selected: location.pathname === base + ROUTES_AVAILABLE['Statistiques'],
-      linkTo: base + "stats"
-    }]
-  }, {
-    items: [{
-      icon: LogoutIcon,
-      text: "Déconnexion",
-      onClick: () => {
-        // show modal
-      }
-    }]
-  }];
-}
-
 // Teacher router
 const TeacherPage: React.FC = () => {
+  function makeDrawerSections(location: Location, base: string) : DrawerSection[] {
+    return [{
+      items: [{
+        icon: ResumeIcon,
+        text: "Résumé",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Résumé'],
+        linkTo: base
+      }, {
+        icon: StudentIcon,
+        text: "Étudiants",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Étudiants'],
+        linkTo: base + "student/all"
+      }, {
+        icon: MailingIcon,
+        text: "Mail",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Mail'],
+        linkTo: base + "mail"
+      }, {
+        icon: AddStudentIcon,
+        text: "Ajout d'étudiant",
+        selected: location.pathname === base + ROUTES_AVAILABLE["Ajout d'étudiant"],
+        linkTo: base + "student/add"
+      }, {
+        icon: StatsIcon,
+        text: "Statistiques",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Statistiques'],
+        linkTo: base + "stats"
+      }]
+    }, {
+      items: [{
+        icon: LogoutIcon,
+        text: "Déconnexion",
+        onClick: handleOpen
+      }]
+    }];
+  }
+
+  const [modalopen, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleUnlog = () => {
+    SETTINGS.unlog();
+    window.location.pathname = "/";
+  };
+
   const location = useLocation();
   const match = useRouteMatch()!;
   const drawer_items = makeDrawerSections(location, match.path);
@@ -73,6 +84,16 @@ const TeacherPage: React.FC = () => {
 
   return (
     <Dashboard drawer={<DashboardDrawer sections={drawer_items} />} title={current_title[0]}>
+      <ClassicModal 
+        open={modalopen}
+        onCancel={handleClose}
+        onClose={handleClose}
+        onValidate={handleUnlog}
+        text="Se déconnecter ?"
+        validateText="Déconnexion"
+        explaination="Vous devrez entrer votre mot de passe à nouveau pour accéder au tableau de bord et gérer les étudiants."
+      />
+
       <Switch>
         {/** 
           Show students 

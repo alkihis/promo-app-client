@@ -13,6 +13,7 @@ export interface Student {
 
 export interface Formation {
   id: number;
-  name: string;
+  branch: string;
+  level: "licence" | "master" | "doctorat" | "other";
   location: string;
 }

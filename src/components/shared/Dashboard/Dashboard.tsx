@@ -194,7 +194,7 @@ export type DrawerListItem = {
   icon: React.ComponentType<SvgIconProps>;
   text: string;
   selected?: boolean;
-  onClick?: Function;
+  onClick?: (evt: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   linkTo?: string;
 };
 
@@ -214,7 +214,7 @@ export const DashboardDrawer: React.FC<{ sections: DrawerSection[] }> = props =>
       {/* Each item hold an icon and text */}
       {e.items.map((item, index) => (
         item.linkTo ? 
-        <Link key={index} to={item.linkTo!} className={classes.link}>
+        <Link key={index} to={item.linkTo!} className={classes.link} onClick={item.onClick}>
           <ListItem button className={item.selected ? classes.selectedItem : classes.unselectedItem}>
             <ListItemIcon>
               <item.icon className={item.selected ? classes.selectedItemIcon : ""} />
@@ -223,7 +223,12 @@ export const DashboardDrawer: React.FC<{ sections: DrawerSection[] }> = props =>
             <ListItemText primary={item.text} />
           </ListItem>
         </Link> : 
-        <ListItem key={index} button className={item.selected ? classes.selectedItem : classes.unselectedItem}>
+        <ListItem 
+          onClick={item.onClick} 
+          key={index} 
+          button 
+          className={item.selected ? classes.selectedItem : classes.unselectedItem}
+        >
           <ListItemIcon>
             <item.icon />
           </ListItemIcon>
