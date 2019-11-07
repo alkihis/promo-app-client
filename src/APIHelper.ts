@@ -1,6 +1,8 @@
 import SETTINGS from "./Settings";
 import { BASE_API_URL } from "./constants";
 
+const LATENCY_ON_EVERY_REQUEST = 500;
+
 export class APIHelper {
 
   /**
@@ -17,11 +19,11 @@ export class APIHelper {
    * You can force the return of the response, even if the request is successful, 
    * by including `{ full: true }` in the `settings` object.
    */
-  request(
+  async request(
     url: string,
     settings: {
       parameters?: { [key: string]: any },
-      method?: "GET" | "POST",
+      method?: "GET" | "POST" | "PUT" | "DELETE",
       mode?: 'json' | 'text',
       headers?: { [key: string]: string } | Headers,
       body_mode?: 'form-encoded' | 'multipart' | 'json',
@@ -31,11 +33,11 @@ export class APIHelper {
       method: 'GET',
       parameters: {}, 
       mode: 'json',
-      body_mode: 'form-encoded',
+      body_mode: 'json',
       auth: true
     }
   ): Promise<any> {
-    let fullurl = BASE_API_URL + url + (url.endsWith('.json') ? "" : ".json");
+    let fullurl = BASE_API_URL + url;
 
     if (!settings.parameters) {
       settings.parameters = {};
@@ -49,7 +51,7 @@ export class APIHelper {
 
     if (Object.keys(settings.parameters).length) {
       // Encodage dans la query
-      if (settings.method === "GET") {
+      if (settings.method === "GET" || settings.method === "DELETE") {
         let str = "?";
         for (const [key, value] of Object.entries(settings.parameters)) {
           str += key + "=" + value;
@@ -67,7 +69,7 @@ export class APIHelper {
           }
         }
         // Si www-form-encoded (ou par défault)
-        else if (!settings.body_mode || settings.body_mode === "form-encoded") {
+        else if (settings.body_mode === "form-encoded") {
           const buffer: string[] = [];
 
           for (const [key, value] of Object.entries(settings.parameters)) {
@@ -91,7 +93,6 @@ export class APIHelper {
         // Sinon (json)
         else {
           fd = JSON.stringify(settings.parameters);
-
           if (settings.headers) {
             if (settings.headers instanceof Headers)
               settings.headers.append('Content-Type', 'application/json');
@@ -124,6 +125,10 @@ export class APIHelper {
           };
         }
       }
+    }
+
+    if (LATENCY_ON_EVERY_REQUEST) {
+      await new Promise(resolve => setTimeout(resolve, LATENCY_ON_EVERY_REQUEST));
     }
 
     return fetch(fullurl, {

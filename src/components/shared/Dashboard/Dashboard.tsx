@@ -7,15 +7,33 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
+import HomeIcon from '@material-ui/icons/Home';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { ListSubheader, ListItem, ListItemIcon, ListItemText, List } from '@material-ui/core';
+import { ListSubheader, ListItem, ListItemIcon, ListItemText, List, Container } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
+import { ContainerProps } from '@material-ui/core/Container';
 
 const drawerWidth = 240;
 
 const useStylesDrawer = makeStyles(theme => ({
-  selectedItem: {},
+  selectedItem: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.getContrastText(theme.palette.primary.main),
+    "&:hover": {
+      backgroundColor: theme.palette.primary.light,
+      color: theme.palette.getContrastText(theme.palette.primary.light)
+    }
+  },
+  selectedItemIcon: {
+    color: theme.palette.getContrastText(theme.palette.primary.main)
+  },
   unselectedItem: {},
+  link: {
+    textDecoration: 'inherit',
+    color: theme.palette.text.primary
+  }
 }));
 
 const useStyles = makeStyles(theme => ({
@@ -81,6 +99,7 @@ const useStyles = makeStyles(theme => ({
   content: {
     height: '100vh',
     overflow: 'auto',
+    width: '100%',
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -99,6 +118,7 @@ const useStyles = makeStyles(theme => ({
 
 type DashboardProps = React.PropsWithChildren<{
   drawer?: React.ReactNode;
+  title?: string;
 }>;
 
 /**
@@ -132,8 +152,14 @@ const Dashboard: React.FC<DashboardProps> = (props: DashboardProps) => {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            {props.title ? props.title : 'Dashboard'}
           </Typography>
+
+          <Link to="/" style={{color: 'inherit'}}>
+            <IconButton color="inherit">
+              <HomeIcon />
+            </IconButton>
+          </Link>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -164,25 +190,39 @@ const Dashboard: React.FC<DashboardProps> = (props: DashboardProps) => {
 export default Dashboard;
 
 
-type ListItem = {
-  icon: React.ComponentType;
+export type DrawerListItem = {
+  icon: React.ComponentType<SvgIconProps>;
   text: string;
   selected?: boolean;
+  onClick?: Function;
+  linkTo?: string;
 };
 
-export const DashboardDrawer: React.FC<React.PropsWithChildren<{
-  sections: {
-    title?: string;
-    items: ListItem[];
-  }[];
-}>> = props => {
+export type DrawerSection = {
+  title?: string;
+  items: DrawerListItem[];
+};
+
+export const DashboardDrawer: React.FC<{ sections: DrawerSection[] }> = props => {
   const classes = useStylesDrawer();
 
+  // Build a list for each section
   const sections = props.sections.map((e, index) => (
     <List key={index}>
       {e.title ? <ListSubheader inset>{e.title}</ListSubheader> : ""}
 
+      {/* Each item hold an icon and text */}
       {e.items.map((item, index) => (
+        item.linkTo ? 
+        <Link key={index} to={item.linkTo!} className={classes.link}>
+          <ListItem button className={item.selected ? classes.selectedItem : classes.unselectedItem}>
+            <ListItemIcon>
+              <item.icon className={item.selected ? classes.selectedItemIcon : ""} />
+            </ListItemIcon>
+
+            <ListItemText primary={item.text} />
+          </ListItem>
+        </Link> : 
         <ListItem key={index} button className={item.selected ? classes.selectedItem : classes.unselectedItem}>
           <ListItemIcon>
             <item.icon />
@@ -199,7 +239,7 @@ export const DashboardDrawer: React.FC<React.PropsWithChildren<{
 
   for (let i = 0; i < sections.length - 1; i++) {
     new_sections.push(sections[i]);
-    new_sections.push(<Divider />);
+    new_sections.push(<Divider key={-i - 1} />);
   }
   if (sections.length)
     new_sections.push(sections[sections.length - 1]);
@@ -209,4 +249,17 @@ export const DashboardDrawer: React.FC<React.PropsWithChildren<{
       {new_sections}
     </>
   );
+};
+
+export const DashboardContainer: React.FC<ContainerProps> = props => {
+  const style = props.style ? { 
+    marginTop: '1.5rem', 
+    marginBottom: '1rem',
+    ...props.style, 
+  } : {
+    marginTop: '1.5rem',
+    marginBottom: '1rem',
+  };
+
+  return <Container style={style} {...props} />;
 };

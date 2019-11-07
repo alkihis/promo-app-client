@@ -1,22 +1,78 @@
 import React from 'react';
 import classes from './Teacher.module.scss';
-import Dashboard from '../../shared/Dashboard/Dashboard';
+import Dashboard, { DrawerSection, DashboardDrawer } from '../../shared/Dashboard/Dashboard';
 import SETTINGS from '../../../Settings';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import { Route, RouteComponentProps, Switch, useLocation, useRouteMatch } from 'react-router-dom';
+import { Location } from 'history';
 import TeacherStudents from '../TeacherStudents/TeacherStudents';
 import AddStudent from '../AddStudent/AddStudent';
 import SendMail from '../SendMail/SendMail';
 
+import LogoutIcon from '@material-ui/icons/Block';
+import StudentIcon from '@material-ui/icons/People';
+import AddStudentIcon from '@material-ui/icons/PersonAdd';
+import StatsIcon from '@material-ui/icons/InsertChart';
+import MailingIcon from '@material-ui/icons/Mail';
+import ResumeIcon from '@material-ui/icons/Public';
+
+const ROUTES_AVAILABLE: {[name: string]: string} = {
+  "Résumé": "",
+  "Étudiants": "student/all",
+  "Mail": "mail",
+  "Ajout d'étudiant": "student/add",
+  "Statistiques": "stats"
+};
+
+function makeDrawerSections(location: Location, base: string) : DrawerSection[] {
+  return [{
+    items: [{
+      icon: ResumeIcon,
+      text: "Résumé",
+      selected: location.pathname === base + ROUTES_AVAILABLE['Résumé'],
+      linkTo: base
+    }, {
+      icon: StudentIcon,
+      text: "Étudiants",
+      selected: location.pathname === base + ROUTES_AVAILABLE['Étudiants'],
+      linkTo: base + "student/all"
+    }, {
+      icon: MailingIcon,
+      text: "Mail",
+      selected: location.pathname === base + ROUTES_AVAILABLE['Mail'],
+      linkTo: base + "mail"
+    }, {
+      icon: AddStudentIcon,
+      text: "Ajout d'étudiant",
+      selected: location.pathname === base + ROUTES_AVAILABLE["Ajout d'étudiant"],
+      linkTo: base + "student/add"
+    }, {
+      icon: StatsIcon,
+      text: "Statistiques",
+      selected: location.pathname === base + ROUTES_AVAILABLE['Statistiques'],
+      linkTo: base + "stats"
+    }]
+  }, {
+    items: [{
+      icon: LogoutIcon,
+      text: "Déconnexion",
+      onClick: () => {
+        // show modal
+      }
+    }]
+  }];
+}
+
 // Teacher router
-const TeacherPage: React.FC<RouteComponentProps> = ({ match }) => {
-  const drawer = (
-    <div>
-      
-    </div>
-  );
+const TeacherPage: React.FC = () => {
+  const location = useLocation();
+  const match = useRouteMatch()!;
+  const drawer_items = makeDrawerSections(location, match.path);
+
+  const current_location = location.pathname.split(match.path).pop() ?? "";
+  const current_title = Object.entries(ROUTES_AVAILABLE).find(e => e[1] === current_location) ?? ["Page non trouvée"];
 
   return (
-    <Dashboard>
+    <Dashboard drawer={<DashboardDrawer sections={drawer_items} />} title={current_title[0]}>
       <Switch>
         {/** 
           Show students 
@@ -29,6 +85,9 @@ const TeacherPage: React.FC<RouteComponentProps> = ({ match }) => {
 
         {/** Show teacher mailing page: Send group mail for students */}
         <Route path={`${match.path}mail`} component={SendMail} /> 
+
+        {/** Statistics */}
+        <Route path={`${match.path}stats`} component={SendMail} /> 
 
         {/* Home page. */}
         <Route path={`${match.path}`} exact component={TeacherHomePage} />
@@ -46,7 +105,7 @@ class TeacherHomePage extends React.Component {
   render() {
     return (
       <div>
-        Hello, i'm the teacher dashboard {String(SETTINGS.test.baba())}
+        Hello, i'm the teacher dashboard {String(SETTINGS.logged)}
       </div>
     );
   }

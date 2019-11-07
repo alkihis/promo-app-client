@@ -7,6 +7,8 @@ import RouterWrapper from './RouterWrapper';
 import StudentPage from '../pages/StudentHome/StudentHome';
 import TeacherWrapper from '../shared/TeacherWrapper/TeacherWrapper';
 import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrapper';
+import SignIn from '../pages/Login/Login';
+import LostToken from '../pages/Login/LostToken';
 
 export default class AppRouter extends React.Component {
   render() {
@@ -42,6 +44,10 @@ export default class AppRouter extends React.Component {
             Home page: Show statistics, map for companies.
            */}
           <Route path="/" exact component={HomePage} />
+
+          <Route path="/login/" component={SignIn} />
+
+          <Route path="/lost_token/" component={LostToken} />
 
           {/* Not Found page. */}
           <Route component={NotFound} />
