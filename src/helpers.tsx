@@ -1,7 +1,6 @@
 import APIHELPER, { APIError } from "./APIHelper";
-import { Student } from "./interfaces";
 import React from 'react';
-import { Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from "@material-ui/core";
+import { Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Divider } from "@material-ui/core";
 import { toast } from "./components/shared/Toaster/Toaster";
 
 export function setPageTitle(title?: string, absolute = false) {
@@ -118,4 +117,12 @@ export const ClassicModal: React.FC<{
     </Dialog>
   );
 };
+
+export function DividerMargin(props: { size: number | string }) {
+  return <Divider style={{ marginTop: props.size, marginBottom: props.size }} />;
+}
+
+export function Marger(props: { size: number | string }) {
+  return <div style={{ marginTop: props.size, marginBottom: props.size, width: '100%', height: '1px' }} />;
+}
 

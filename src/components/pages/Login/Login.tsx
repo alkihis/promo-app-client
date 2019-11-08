@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -10,12 +10,11 @@ import CheckIcon from '@material-ui/icons/Check';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { RouteComponentProps, Link as RouterLink, Route } from 'react-router-dom';
+import { RouteComponentProps, Link as RouterLink } from 'react-router-dom';
 import QueryString from 'query-string';
 import { CircularProgress } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import SETTINGS, { LoggedLevel } from '../../../Settings';
-import { CenterComponent } from '../../../helpers';
 import LoginWrapper from '../../shared/LoginWrapper/LoginWrapper';
 
 function Copyright() {
@@ -123,6 +122,7 @@ const SignIn: React.FC<RouteComponentProps> = props => {
 
   const query_string = props.location.search;
   let is_teacher = false;
+  let input_value = "";
 
   const [status, setStatus] = React.useState<LoggedStatus>(false);
 
@@ -132,11 +132,44 @@ const SignIn: React.FC<RouteComponentProps> = props => {
     if (parsed.teacher === "1") {
       is_teacher = true;
     }
+    if (!is_teacher && parsed.token && status === false) {
+      input_value = parsed.token as string;
+
+      setTimeout(() => {
+        const text_element = document.getElementById('login-auto-identifier') as HTMLInputElement;
+        if (text_element) {
+          text_element.value = input_value;
+        }
+
+        // Auto verify
+        startLogin();
+      }, 5);
+    }
   }
 
   function resetCmpt() {
     (document.getElementById('login-auto-identifier')! as HTMLInputElement).value = "";
     setStatus(false);
+  }
+
+  function startLogin() {
+    const field = document.getElementById('login-auto-identifier')! as HTMLInputElement;
+    
+    const login_promise = SETTINGS.loginAs(field.value, is_teacher);
+    setStatus(null);
+
+    login_promise
+      .then(() => {
+        // Logged !
+        setStatus(true);
+
+        setTimeout(() => {
+          window.location.pathname = is_teacher ? "/teacher/" : "/student/";
+        }, 1000);
+      })
+      .catch((cause: number | undefined) => {
+        setStatus(cause);
+      });
   }
 
   function login(evt: React.FormEvent<HTMLFormElement>) {
@@ -147,24 +180,7 @@ const SignIn: React.FC<RouteComponentProps> = props => {
       return;
     }
 
-    const field = document.getElementById('login-auto-identifier')! as HTMLInputElement;
-    
-    const login_promise = SETTINGS.loginAs(field.value, is_teacher);
-    setStatus(null);
-
-    login_promise
-      .then(() => {
-        // Logged !
-        setStatus(true);
-        // TODO REDIRECT TO HOME
-
-        setTimeout(() => {
-          window.location.pathname = is_teacher ? "/teacher/" : "/student/";
-        }, 1000);
-      })
-      .catch((cause: number | undefined) => {
-        setStatus(cause);
-      });
+    startLogin();
   }
 
   return (

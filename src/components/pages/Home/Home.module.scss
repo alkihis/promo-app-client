@@ -10,12 +10,38 @@
 .container {
   margin-top: 1.5rem;
 }
-.home_title {
+.home_title_main {
+  text-align: center;
+}
+.home_title, .home_title_main {
   color: rgb(58, 58, 58);
 }
-.bioinfologo {
+.mainlogo {
   max-width: 50%;
-  height: auto;
+  max-height: 200px;
   display: block;
   margin: auto;
+}
+.bioinfologo {
+  max-width: 100%;
+  max-height: 150px;
+  display: block;
+  margin: auto;
+
+  @media screen and (max-width: 700px) {
+    max-height: 120px;
+  }
+}
+.responsive_img_container {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  @media screen and (max-width: 700px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media screen and (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
 }

@@ -106,7 +106,7 @@ export default class AddStudent extends React.Component<{}, ASState> {
 
   render() {
     const available_years: number[] = [];
-    for (let cur_year = (new Date).getFullYear(); cur_year >= 2015; cur_year--) {
+    for (let cur_year = (new Date()).getFullYear(); cur_year >= 2015; cur_year--) {
       available_years.push(cur_year);
     }
 

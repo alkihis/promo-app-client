@@ -27,7 +27,7 @@ export class APIHelper {
       mode?: 'json' | 'text',
       headers?: { [key: string]: string } | Headers,
       body_mode?: 'form-encoded' | 'multipart' | 'json',
-      auth?: boolean,
+      auth?: boolean | string,
       full?: boolean
     } = { 
       method: 'GET',
@@ -109,19 +109,21 @@ export class APIHelper {
     }
 
     if (settings.auth !== false) {
-      if (!SETTINGS.token) {
+      if (!SETTINGS.token && typeof settings.auth !== 'string') {
         console.warn("Could not authentificate request without token. Skipping auth header...");
       }
       else {
+        const used_token = typeof settings.auth === 'string' ? settings.auth : SETTINGS.token;
+
         if (settings.headers) {
           if (settings.headers instanceof Headers) 
-            settings.headers.set('Authorization', "Bearer " + SETTINGS.token);
+            settings.headers.set('Authorization', "Bearer " + used_token);
           else
-            settings.headers['Authorization'] = "Bearer " + SETTINGS.token;
+            settings.headers['Authorization'] = "Bearer " + used_token;
         }
         else {
           settings.headers = {
-            Authorization: "Bearer " + SETTINGS.token
+            Authorization: "Bearer " + used_token
           };
         }
       }

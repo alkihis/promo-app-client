@@ -1,6 +1,6 @@
 import { Student } from "./interfaces";
-import APIHELPER from "./APIHelper";
-import { rejectCodeOrUndefined, throwCodeOrUndefined } from "./helpers";
+import APIHELPER, { APIError } from "./APIHelper";
+import { throwCodeOrUndefined, notifyError } from "./helpers";
 
 export enum LoggedLevel {
   unlogged, logged, teacher
@@ -71,6 +71,7 @@ class Settings {
     if (this._user_object !== null) {
       return this._user_object;
     }
+    return undefined;
   }
 
   unlog() {
@@ -156,11 +157,7 @@ class Settings {
   
       // Try to get user object
       const student = APIHELPER.request('student/self', {
-        parameters: {
-          token: key_or_password
-        },
-        method: 'POST',
-        auth: true
+        auth: key_or_password
       });
   
       try {
@@ -198,15 +195,10 @@ class Settings {
       }
       
       // Doit télécharger l'étudiant en cours
-      return APIHELPER.request('student/self', {
-        parameters: {
-          token: this.token
-        },
-        method: 'POST',
-        auth: true
-      }).then((stu: Student) => {
-        return { ...s, student: stu };
-      });
+      return APIHELPER.request('student/self', { auth: this.token })
+        .then((stu: Student) => {
+          return { ...s, student: stu };
+        });
     });
 
     try {
@@ -225,8 +217,10 @@ class Settings {
         this.unlog();
       }
     } catch (e) {
-      if (APIHELPER.isApiError(e)) {
-        if (e.code === 6) {
+      if (Array.isArray(e) && APIHELPER.isApiError(e[1])) {
+        notifyError(e as [any, APIError]);
+
+        if (e[1].code === 6) {
           // Invalid credentials
           this.unlog();
         }
@@ -249,7 +243,7 @@ function validateStudent(e: any) : e is Student {
   );
 }
 
-const SETTINGS = new Settings;
+const SETTINGS = new Settings();
 
 export default SETTINGS;
 

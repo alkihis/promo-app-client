@@ -4,7 +4,7 @@ import NotFound from '../pages/NotFound/NotFound';
 import HomePage from '../pages/Home/Home';
 import TeacherPage from '../pages/TeacherHome/Teacher';
 import RouterWrapper from './RouterWrapper';
-import StudentPage from '../pages/StudentHome/StudentHome';
+import { StudentWrapper, StudentSelfHome } from '../pages/StudentHome/StudentHome';
 import TeacherWrapper from '../shared/TeacherWrapper/TeacherWrapper';
 import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrapper';
 import SignIn from '../pages/Login/Login';
@@ -24,7 +24,7 @@ export default class AppRouter extends React.Component {
             Should be same page as /student, but with a selected specific student
             and more options (data that are not modifiable for students)
           */}
-          <Route path={`/teacher/dashboard/:id`} render={
+          <Route path={`/teacher/dashboard/:id/`} render={
             (props: RouteComponentProps) => <TeacherWrapper component={TeacherStudentWrapper} {...props} />
           } />
 
@@ -40,9 +40,11 @@ export default class AppRouter extends React.Component {
             Student page (for student)
             Dashboard for current logged user.
 
-            Everything modifiable should be in a modal. (re-use for /teacher/student/:id)
+            Everything modifiable should be in a modal. (re-use for /teacher/dashboard/:id)
            */}
-          <Route path="/student/" component={StudentPage} />  
+          <Route path="/student/" render={
+            (props: RouteComponentProps) => <StudentWrapper component={StudentSelfHome} {...props} />
+          } />  
 
           {/** 
             Home page: Show statistics, map for companies.
