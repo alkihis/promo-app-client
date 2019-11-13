@@ -20,7 +20,7 @@
     "js-levenshtein": "^1.1.6",
     "node-sass": "^4.13.0",
     "notistack": "^0.9.6",
-    "query-string": "^6.8.3",
+    "query-string": "^6.9.0",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-router": "^5.1.2",

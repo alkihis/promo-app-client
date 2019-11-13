@@ -1,12 +1,13 @@
 import React from 'react';
 import { Company, CompanyStatuses, CompanySizes, CompanySize, CompanyStatus, Student } from '../../../../interfaces';
-import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress } from '@material-ui/core';
+import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Checkbox, FormControlLabel } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import classes from './Modals.module.scss';
-import { Marger, notifyError } from '../../../../helpers';
+import { Marger, notifyError, DividerMargin } from '../../../../helpers';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
+import { toast } from '../../../shared/Toaster/Toaster';
 
 // TODO améliorer la reconnaissance des mots avec Lenvenstein
 
@@ -26,6 +27,7 @@ type CMState = {
   available?: Company[];
   selected_id?: number;
   in_confirm: boolean;
+  manual_company: boolean;
 }
 
 const Transition: any = React.forwardRef(function Transition(props, ref) {
@@ -44,9 +46,8 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
       status: 'private',
       size: 'small',
       in_confirm: false,
+      manual_company: false,
     };
-
-    window.DEBUG.comp_modal = this;
 
     APIHELPER.request('company/all')
       .then((cps: Company[]) => {
@@ -74,7 +75,8 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
         in_confirm: false,
         selected_id: undefined,
         town: "",
-        name: ""
+        name: "",
+        manual_company: false
       });
       // Actualise depuis le donné
       if (this.props.open && this.props.base) {
@@ -88,10 +90,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
       const b = this.props.base;
       this.setState({
         selected_id: b.id,
-        name: b.name,
-        town: b.town,
-        status: b.status,
-        size: b.size
+        manual_company: false
       });
     }
   }
@@ -101,15 +100,31 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
       in_confirm: true
     });
 
+    let name: string, size: CompanySize, status: CompanyStatus, town: string;
+
+    if (this.state.selected_id) {
+      const comp = this.state.available?.find(c => c.id === this.state.selected_id);
+
+      if (comp) {
+        this.props.onConfirm?.(comp);
+        this.setState({ in_confirm: false });
+        return;
+      }
+    }
+
+    name = this.state.name!; 
+    size = this.state.size!;
+    status = this.state.status!;
+    town = this.state.town!;
+
     if (
-      !this.state.name ||
-      !this.state.size ||
-      !this.state.status ||
-      !this.state.town
+      !name ||
+      !size ||
+      !status ||
+      !town
     ) {
       // TODO vérification des champs et erreurs
-
-      this.props.onConfirm?.(undefined);
+      toast("Un ou plusieurs des champs ne respecte(nt) pas le format requis.", "warning");
       this.setState({ in_confirm: false });
       return;
     }
@@ -155,32 +170,8 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
     });
   };
 
-  handleNameChange = (evt: any, value: any) => {
-    const name = typeof value === 'string' ? value : evt?.target?.value;
-
-    //// TODO Do things like auto set the town !
-    let associated_company: Company = undefined!;
-
-    if (this.state.available) {
-      for (const c of this.state.available) {
-        if (c.name === name) {
-          associated_company = c;
-          break;
-        }
-      }
-
-      if (associated_company) {
-        console.log("company found", associated_company)
-        this.setState({
-          name,
-          selected_id: associated_company.id,
-          town: associated_company.town,
-          status: associated_company.status,
-          size: associated_company.size
-        });
-        return;
-      }
-    }
+  handleNameChange = (evt: any) => {
+    const name = evt?.target?.value;
     
     this.setState({
       name,
@@ -197,6 +188,30 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
   handleTownNChange = (_: any, value: string) => {
     this.setState({
       town: value
+    });
+  };
+
+  handleManualCompanyChange = (_: any, checked: boolean) => {
+    this.setState({
+      manual_company: checked,
+      selected_id: checked ? undefined : this.state.selected_id
+    });
+  };
+
+  handleAutoCompanyChange = (_: any, new_value: Company | null) => {
+    if (new_value === null) {
+      this.setState({
+        selected_id: undefined
+      });
+      return;
+    }
+
+    this.setState({
+      selected_id: new_value.id,
+      name: "",
+      size: "small",
+      status: "public",
+      town: "",
     });
   };
 
@@ -220,6 +235,10 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
   }
 
   render() {
+    const selected_value = this.state.available && this.state.selected_id ? 
+      this.state.available.find(f => f.id === this.state.selected_id) : 
+      undefined;
+
     return (
       <Dialog 
         className={classes.dialog + " " + (this.state.in_confirm ? classes.in_load : "")} 
@@ -251,21 +270,37 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
           <div className={classes.flex_column_container}>
             <Marger size=".3rem" />
 
-            <CompanyNameSelect 
-              value={this.state.name} 
-              options={this.state.available?.map(e => e.name)}
-              onChange={this.handleNameChange} 
-              onInputChange={this.handleNameChange}
+            <CompanyAutoSelect 
+              options={this.state.available}
+              value={selected_value ?? null}
+              onChange={this.handleAutoCompanyChange}
+              disabled={this.state.manual_company}
             />
 
             <Marger size=".5rem" />
 
-            <CompanyTownSelect 
+            <FormControlLabel
+              control={<Checkbox checked={this.state.manual_company} onChange={this.handleManualCompanyChange} />}
+              label="Mon lieu d'embauche n'est pas dans la liste"
+            />
+
+            <DividerMargin size="1rem" />
+
+            <TextField
+              value={this.state.name}
+              onChange={this.handleNameChange}
+              label="Nom complet"
+              disabled={!this.state.manual_company}
+            />
+
+            <Marger size=".5rem" />
+
+            {/* Auto select de lieu avec API serait cool ! */}
+            <TextField
               value={this.state.town}
-              options={this.getAvailableTowns()}
-              onInputChange={this.handleTownChange}
-              onChange={this.handleTownNChange} 
-              disabled={!this.state.name}
+              onChange={this.handleTownChange}
+              label="Lieu"
+              disabled={!this.state.manual_company}
             />
 
             <Marger size=".5rem" />
@@ -277,7 +312,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
                 value={this.state.status}
                 onChange={this.handleStatusChange}
                 required
-                disabled={!!this.state.selected_id}
+                disabled={!!this.state.selected_id || !this.state.manual_company}
               >
                 {Object.entries(CompanyStatuses).map(([key, val]) => (
                   <MenuItem key={key} value={key}>{val}</MenuItem>
@@ -294,7 +329,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
                 value={this.state.size}
                 onChange={this.handleSizeChange}
                 required
-                disabled={!!this.state.selected_id}
+                disabled={!!this.state.selected_id || !this.state.manual_company}
               >
                 {Object.entries(CompanySizes).map(([key, val]) => (
                   <MenuItem key={key} value={key}>{val}</MenuItem>
@@ -426,6 +461,47 @@ function CompanyTownSelect(props: {
               </React.Fragment>
             ),
           }}
+        />
+      )}
+    />
+  )
+}
+
+function CompanyAutoSelect(props: { 
+  onChange: (event: React.ChangeEvent<{}>, value: Company | null) => void, 
+  value: Company | null,
+  options?: Company[],
+  disabled?: boolean,
+}) {
+  const [open, setOpen] = React.useState(false);
+  const loading = open && !props.options;
+
+  const options = props.options;
+  
+  return (
+    <Autocomplete
+      open={open}
+      onOpen={() => {
+        setOpen(true);
+      }}
+      onClose={() => {
+        setOpen(false);
+      }}
+      getOptionLabel={(c: Company) => c.name + ", " + c.town}
+      options={options}
+      loading={loading}
+      loadingText={"Chargement..."}
+      noOptionsText={"Aucune entreprise à suggérer"}
+      onChange={props.onChange}
+      value={props.value}
+      autoComplete
+      disabled={props.disabled}
+      renderInput={params => (
+        <TextField
+          {...params}
+          label="Rechercher une entreprise..."
+          fullWidth
+          variant="outlined"
         />
       )}
     />

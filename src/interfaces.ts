@@ -18,6 +18,14 @@ export interface Formation {
   location: string;
 }
 
+export interface Internship {
+  id: number;
+  during: string;
+  owner: Student | number;
+  company: Company;
+  referrer?: Contact;
+}
+
 export interface Job {
   id: number;
   owner: Student | number;

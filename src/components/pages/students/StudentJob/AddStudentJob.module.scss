@@ -13,3 +13,16 @@
   user-select: none;
   pointer-events: none;
 }
+
+.datepicker_container {
+  display: flex;
+  flex-direction: row;
+  & > * {
+    width: 48%;
+  }
+  justify-content: space-between;
+}
+
+.flex_end {
+  justify-content: flex-end;
+}

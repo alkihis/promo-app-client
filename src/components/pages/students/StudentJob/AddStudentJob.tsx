@@ -7,12 +7,12 @@ import CompanyModal, { CompanyResume } from './CompanyModal';
 import { Marger, errorToText } from '../../../../helpers';
 import ContactModal, { ContactResume } from './ContactModal';
 import DateFnsUtils from '@date-io/date-fns';
+import { fr } from "date-fns/locale";
 import {
   MuiPickersUtilsProvider,
-  KeyboardDatePicker,
+  DatePicker,
 } from '@material-ui/pickers';
 import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import { toast } from '../../../shared/Toaster/Toaster';
 import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
@@ -311,7 +311,13 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           open={this.state.modal_company} 
           base={this.state.company}
           onClose={() => this.setState({ modal_company: false })} 
-          onConfirm={c => this.setState({ modal_company: false, company: c })}
+          onConfirm={c => {
+            this.setState({ modal_company: false, company: c });
+
+            if (this.state.contact?.linked_to !== c?.id) {
+              this.setState({ contact: undefined });
+            }
+          }}
         />
         <CompanyResume 
           company={this.state.company} 
@@ -343,29 +349,38 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
             Dates
           </Typography>
 
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils} locale={fr}>
             <div className={classes.flex_column_container}>
-              <KeyboardDatePicker
-                margin="normal"
-                label="Début de l'emploi"
-                format="dd/MM/yyyy"
-                maxDate={new Date}
-                value={this.state.start_date}
-                onChange={this.handleStartChange}
-                required
-              />
+              <div className={classes.datepicker_container}>
+                <DatePicker
+                  margin="normal"
+                  label="Début de l'emploi"
+                  format="MM/yyyy"
+                  views={['year', 'month']}
+                  maxDate={new Date}
+                  value={this.state.start_date}
+                  onChange={this.handleStartChange}
+                  required
+                  okLabel="Confirmer"
+                  cancelLabel="Annuler"
+                />
 
-              <KeyboardDatePicker
-                margin="normal"
-                label="Fin de l'emploi"
-                format="dd/MM/yyyy"
-                maxDate={new Date}
-                value={this.state.end_date}
-                onChange={this.handleEndChange}
-                disabled={!this.state.end_date}
-              />
+                <DatePicker
+                  margin="normal"
+                  label="Fin de l'emploi"
+                  format="MM/yyyy"
+                  maxDate={new Date}
+                  views={['year', 'month']}
+                  value={this.state.end_date}
+                  onChange={this.handleEndChange}
+                  disabled={!this.state.end_date}
+                  okLabel="Confirmer"
+                  cancelLabel="Annuler"
+                />
+              </div>
 
               <FormControlLabel
+                className={classes.flex_end}
                 control={<Checkbox checked={!this.state.end_date} onChange={this.handleHasEndChange} value="not-end" />}
                 label="J'occupe toujours cet emploi"
               />
