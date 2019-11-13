@@ -251,7 +251,7 @@ const SignIn: React.FC<RouteComponentProps> = props => {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2" to="/lost_token" component={RouterLink}>
+              <Link href="#" variant="body2" to="/lost_token/" component={RouterLink}>
                 {!is_teacher ? "Clé d'accès" : "Mot de passe"} perdu{!is_teacher ? "e" : ""} ?
               </Link>
             </Grid>

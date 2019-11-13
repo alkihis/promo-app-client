@@ -1,0 +1,456 @@
+import React from 'react';
+import classes from './AddStudentJob.module.scss';
+import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
+import { Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem, Input, FormHelperText, InputAdornment, TextField, Button } from '@material-ui/core';
+import { Job, Company, Contact, Domain, Domains, JobLevels, JobTypes, JobLevel, JobType, Student } from '../../../../interfaces';
+import CompanyModal, { CompanyResume } from './CompanyModal';
+import { Marger, errorToText } from '../../../../helpers';
+import ContactModal, { ContactResume } from './ContactModal';
+import DateFnsUtils from '@date-io/date-fns';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
+import { MaterialUiPickersDate } from '@material-ui/pickers/typings/date';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { toast } from '../../../shared/Toaster/Toaster';
+import APIHELPER from '../../../../APIHelper';
+import StudentContext from '../../../shared/StudentContext/StudentContext';
+import { Link } from 'react-router-dom';
+
+export default class AddStudentJob extends React.Component {
+  render() {
+    return (
+      <DashboardContainer>
+        <Typography variant="h4" className={classes.main_header} gutterBottom>
+          Ajouter un emploi
+        </Typography>
+        <StudentJobForm />
+      </DashboardContainer>
+    );
+  }
+}
+
+export class ModifyStudentJob extends React.Component<{ job: Job }> {
+  render() {
+    return (
+      <DashboardContainer>
+        <Typography variant="h4" className={classes.main_header} gutterBottom>
+          Modifier un emploi
+        </Typography>
+        <StudentJobForm existing={this.props.job} />
+      </DashboardContainer>
+    );
+  }
+}
+
+type SJFProps = {
+  existing?: Job
+};
+
+type SJFState = {
+  existing?: Job;
+
+  company?: Company;
+  contact?: Contact;
+
+  modal_company: boolean;
+  modal_contact: boolean;
+
+  start_date: Date;
+  end_date?: Date;
+
+  domain?: Domain;
+  type?: JobType;
+  level?: JobLevel;
+  wage?: number;
+
+  in_send: boolean;
+};
+
+class StudentJobForm extends React.Component<SJFProps, SJFState> {
+  static contextType = StudentContext;
+  context!: Student;
+
+  constructor(props: SJFProps) {
+    super(props);
+
+    this.state = {
+      modal_company: false,
+      modal_contact: false,
+      company: this.props.existing?.company,
+      contact: this.props.existing?.referrer,
+      start_date: new Date,
+      domain: "other",
+      type: "cdi",
+      level: "ingenieur",
+      in_send: false,
+      existing: this.props.existing,
+    };
+  }
+
+  componentDidMount() {
+    if (this.state.existing) {
+      this.reset();
+    }
+  }
+
+  componentDidUpdate(old_props: SJFProps) {
+    if (this.props.existing !== old_props.existing) {
+      this.setState({
+        existing: this.props.existing
+      });
+
+      this.reset();
+    }
+  }
+
+  reset() {
+    this.setState({
+      modal_company: false,
+      modal_contact: false,
+      company: this.state.existing?.company,
+      contact: this.state.existing?.referrer,
+      start_date: this.state.existing?.from ? new Date(this.state.existing.from) : new Date,
+      domain: this.state.existing?.domain ?? "other",
+      type: this.state.existing?.type ?? "cdi",
+      level: this.state.existing?.level ?? "ingenieur",
+      in_send: false,
+      wage: this.state.existing?.wage,
+      end_date: this.state.existing?.to ? new Date(this.state.existing.to) : undefined,
+    });
+  }
+
+  handleStartChange = (date: MaterialUiPickersDate) => {
+    const d = date as Date;
+
+    if (d && d.getTime() > Date.now()) {
+      return;
+    }
+
+    if (d && this.state.end_date) {
+      if (d.getTime() > this.state.end_date.getTime()) {
+        this.setState({
+          end_date: date as Date
+        });
+      }
+    }
+
+    this.setState({
+      start_date: date as Date
+    });
+  };
+
+  handleEndChange = (date: MaterialUiPickersDate) => {
+    const d = date as Date;
+
+    if (d && d.getTime() > Date.now()) {
+      return;
+    }
+
+    if (d && this.state.start_date) {
+      if (d.getTime() < this.state.start_date.getTime()) {
+        this.setState({
+          start_date: date as Date
+        });
+      }
+    }
+
+    this.setState({
+      end_date: date as Date
+    });
+  };
+
+  handleHasEndChange = (_: any, checked: boolean) => {
+    if (checked) {
+      this.setState({
+        end_date: undefined
+      });
+    }
+    else {
+      this.setState({
+        end_date: new Date
+      });
+    }
+  };
+
+  handleDomainChange = (evt: React.ChangeEvent<{ value: unknown }>) => {
+    this.setState({
+      domain: evt.target.value as Domain
+    });
+  };
+
+  handleLevelChange = (evt: React.ChangeEvent<{ value: unknown }>) => {
+    this.setState({
+      level: evt.target.value as JobLevel
+    });
+  };
+
+  handleTypeChange = (evt: React.ChangeEvent<{ value: unknown }>) => {
+    this.setState({
+      type: evt.target.value as JobType
+    });
+  };
+
+  handleWageChange = (evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    this.setState({
+      wage: Number(evt.target.value)
+    });
+  };
+
+  submitForm = async (evt: React.FormEvent<HTMLFormElement>) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+
+    if (!this.state.company) {
+      toast("Vous n'avez précisé aucune entreprise.", "warning");
+      return;
+    }
+
+    this.setState({
+      in_send: true
+    });
+
+    // Si le contact doit être inséré
+    // TODO gérer modification (sûrement via une fiche d'entreprise ?)
+    let contact = this.state.contact;
+    if (contact && contact.id === 0) {
+      try {
+        contact = await APIHELPER.request('contact/create', {
+          method: 'POST',
+          parameters: {
+            name: contact.name,
+            mail: contact.email,
+            id_entreprise: contact.linked_to
+          }
+        });
+
+        this.setState({
+          contact
+        });
+      } catch (e) {
+        this.setState({
+          in_send: false
+        });
+        toast("Impossible d'ajouter le contact dans la base de données: " + errorToText(e), "error");
+        return;
+      }
+    }
+
+    // Sending job
+    try {
+      if (!this.state.existing) {
+        const job: Job = await APIHELPER.request('job/create', {
+          method: 'POST',
+          parameters: {
+            start: this.state.start_date.toDateString(),
+            end: this.state.end_date?.toDateString() ?? null,
+            contract: this.state.type,
+            salary: this.state.wage ?? null,
+            level: this.state.level,
+            company: this.state.company.id,
+            domain: this.state.domain,
+            contact: this.state.contact?.id ?? null,
+            user_id: this.context.id,
+          }
+        });
+
+        this.setState({
+          existing: job,
+          in_send: false
+        });
+      }
+      else {
+        toast("Modification is not supported yet.", "info");
+        /* const job: Job = await APIHELPER.request('job/modify', {
+          method: 'POST',
+          parameters: {
+            start: this.state.start_date.toDateString(),
+            end: this.state.end_date?.toDateString() ?? null,
+            contract: this.state.type,
+            salary: this.state.wage ?? null,
+            level: this.state.level,
+            company: this.state.company.id,
+            domain: this.state.domain,
+            contact: this.state.contact?.id ?? null,
+            user_id: this.context.id,
+          }
+        }); */
+
+        this.setState({
+          //existing: job,
+          in_send: false
+        });
+      }
+    } catch (e) {
+      toast("Impossible d'ajouter l'emploi dans la base de données: " + errorToText(e), "error");
+      this.setState({
+        in_send: false
+      });
+    }
+  };
+
+  render() {
+    return (
+      <div className={classes.container}>
+        <Typography variant="h5" gutterBottom>
+          Entreprise
+        </Typography>
+        <CompanyModal 
+          open={this.state.modal_company} 
+          base={this.state.company}
+          onClose={() => this.setState({ modal_company: false })} 
+          onConfirm={c => this.setState({ modal_company: false, company: c })}
+        />
+        <CompanyResume 
+          company={this.state.company} 
+          onLinkClick={() => this.setState({ modal_company: true })} 
+        /> 
+
+        <Marger size="1rem" />
+
+        <Typography variant="h5" gutterBottom>
+          Contact
+        </Typography>
+        {this.state.company && <ContactModal 
+          open={this.state.modal_contact} 
+          company={this.state.company} 
+          base={this.state.contact}
+          onClose={() => this.setState({ modal_contact: false })} 
+          onConfirm={c => this.setState({ modal_contact: false, contact: c })}
+        />}
+        <ContactResume 
+          contact={this.state.contact} 
+          onLinkClick={() => this.setState({ modal_contact: true })} 
+          disabled={!this.state.company}
+        /> 
+
+        <Marger size="1rem" />
+
+        <form onSubmit={this.submitForm}>
+          <Typography variant="h5" gutterBottom>
+            Dates
+          </Typography>
+
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <div className={classes.flex_column_container}>
+              <KeyboardDatePicker
+                margin="normal"
+                label="Début de l'emploi"
+                format="dd/MM/yyyy"
+                maxDate={new Date}
+                value={this.state.start_date}
+                onChange={this.handleStartChange}
+                required
+              />
+
+              <KeyboardDatePicker
+                margin="normal"
+                label="Fin de l'emploi"
+                format="dd/MM/yyyy"
+                maxDate={new Date}
+                value={this.state.end_date}
+                onChange={this.handleEndChange}
+                disabled={!this.state.end_date}
+              />
+
+              <FormControlLabel
+                control={<Checkbox checked={!this.state.end_date} onChange={this.handleHasEndChange} value="not-end" />}
+                label="J'occupe toujours cet emploi"
+              />
+            </div>
+          </MuiPickersUtilsProvider>
+        
+          <Marger size="1rem" />
+
+          <Typography variant="h5" gutterBottom>
+            Informations sur l'emploi
+          </Typography>
+
+          <div className={classes.flex_column_container}>
+            {/* Domaine */}
+            <FormControl className={classes.flex_column_container}>
+              <InputLabel id="label-select-domain">Domaine d'activité</InputLabel>
+              <Select
+                labelId="label-select-domain"
+                value={this.state.domain}
+                onChange={this.handleDomainChange}
+                required
+              >
+                {Object.entries(Domains).map(([key, val]) => (
+                  <MenuItem key={key} value={key}>{val}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Marger size=".5rem" />
+
+            {/* Salaire */}
+            <FormControl>
+              <InputLabel htmlFor="wage-input">Salaire brut annuel</InputLabel>
+              <Input 
+                type="number" 
+                id="wage-input" 
+                aria-describedby="wage-input-text" 
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+                value={this.state.wage ?? ""}
+                onChange={this.handleWageChange}
+              />
+              <FormHelperText id="wage-input-text">Ce champ est optionnel.</FormHelperText>
+            </FormControl>
+
+            <Marger size=".5rem" />
+
+            {/* Niveau */}
+            <FormControl className={classes.flex_column_container}>
+              <InputLabel id="label-select-level">Niveau</InputLabel>
+              <Select
+                labelId="label-select-level"
+                value={this.state.level}
+                onChange={this.handleLevelChange}
+                required
+              >
+                {Object.entries(JobLevels).map(([key, val]) => (
+                  <MenuItem key={key} value={key}>{val}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Marger size=".5rem" />
+
+            {/* Type de contrat */}
+            <FormControl className={classes.flex_column_container}>
+              <InputLabel id="label-select-type">Type de contrat</InputLabel>
+              <Select
+                labelId="label-select-type"
+                value={this.state.type}
+                onChange={this.handleTypeChange}
+                required
+              >
+                {Object.entries(JobTypes).map(([key, val]) => (
+                  <MenuItem key={key} value={key}>{val}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Marger size="1rem" />
+          </div>
+          
+          <Marger size="1rem" />
+
+          <div style={{ justifyContent: 'space-between', display: 'flex', flexDirection: 'row' }}>
+            <Link className="link" to="../">
+              <Button variant="outlined" type="button" color="secondary">
+                Annuler
+              </Button>
+            </Link>
+            <Button variant="outlined" type="submit" color="primary">
+              {this.state.existing ? "Modifier" : "Ajouter"} emploi
+            </Button>
+          </div> 
+
+          <Marger size="3rem" />
+        </form>
+      </div>
+    );
+  }
+}

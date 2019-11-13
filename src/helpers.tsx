@@ -49,9 +49,13 @@ export function notifyError(error: APIError | [any, APIError | undefined] | unde
   toast(errorToText(error), "error");
 }
 
-export function errorToText(error: APIError | number | undefined) : string {
+export function errorToText(error: APIError | number | undefined | [any, APIError]) : string {
   if (!error) {
     return "Erreur réseau. Réessayez ultérieurement.";
+  }
+
+  if (Array.isArray(error)) {
+    return errorToText(error[1]);
   }
 
   if (typeof error !== 'number') {

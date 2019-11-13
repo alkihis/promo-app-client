@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import classes from './StudentHome.module.scss';
 import { RouteComponentProps, useLocation, useRouteMatch, Switch, Route } from 'react-router-dom';
 import { Location } from 'history';
@@ -13,8 +13,11 @@ import WorkIcon from '@material-ui/icons/Work';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
 import IntershipIcon from '@material-ui/icons/ImportContacts';
 import { Student } from '../../../interfaces';
+import StudentJob from '../students/StudentJob/StudentJob';
+import StudentContext, { ExtendedStudent } from '../../shared/StudentContext/StudentContext';
+import AddStudentJob, { ModifyStudentJob } from '../students/StudentJob/AddStudentJob';
 
-type SPProps = RouteComponentProps & { student: Student };
+type SPProps = RouteComponentProps & { student: ExtendedStudent };
 
 export const StudentWrapper: React.FC<GenericLoginWrapperProps> = props => {
   return <LoginWrapper allowOn="student" {...props} />;
@@ -27,11 +30,12 @@ export const StudentSelfHome: React.FC<RouteComponentProps> = props => {
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
   "Emplois": "job",
+  "Ajouter un emploi": "job/add",
   "Stages": "intership",
   "Informations": "info",
 };
 
-// Teacher router
+// Student router
 const StudentPage: React.FC<SPProps> = props => {
   function makeDrawerSections(location: Location, base: string) : DrawerSection[] {
     return [{
@@ -43,7 +47,7 @@ const StudentPage: React.FC<SPProps> = props => {
       }, {
         icon: WorkIcon,
         text: "Emplois",
-        selected: location.pathname === base + ROUTES_AVAILABLE['Emplois'],
+        selected: location.pathname.includes(base + ROUTES_AVAILABLE['Emplois']),
         linkTo: base + "job"
       }, {
         icon: IntershipIcon,
@@ -92,72 +96,82 @@ const StudentPage: React.FC<SPProps> = props => {
   const current_title = Object.entries(ROUTES_AVAILABLE).find(e => e[1] === current_location) ?? ["Page non trouvée"];
 
   return (
-    <Dashboard drawer={<DashboardDrawer sections={drawer_items} />} title={current_title[0]}>
-      <ClassicModal
-        open={modalopen}
-        onCancel={handleClose}
-        onClose={handleClose}
-        onValidate={handleUnlog}
-        text="Se déconnecter ?"
-        validateText="Déconnexion"
-        explaination="Vous devrez entrer votre mot de passe à nouveau pour accéder au tableau de bord et gérer les étudiants."
-      />
-
-      {/* TODO set routes */}
-      <Switch>
-        {/** Jobs */}
-        <Route 
-          path={`${url}job`} 
-          component={(p: RouteComponentProps) => <StudentHomePage {...p} student={props.student} />} 
+    <StudentContext.Provider value={props.student}>
+      <Dashboard drawer={<DashboardDrawer sections={drawer_items} />} title={current_title[0]}>
+        <ClassicModal
+          open={modalopen}
+          onCancel={handleClose}
+          onClose={handleClose}
+          onValidate={handleUnlog}
+          text="Se déconnecter ?"
+          validateText="Déconnexion"
+          explaination="Vous devrez entrer votre mot de passe à nouveau pour accéder au tableau de bord et gérer les étudiants."
         />
 
-        {/** Interships. */}
-        <Route 
-          path={`${url}intership`} 
-          component={(p: RouteComponentProps) => <StudentHomePage {...p} student={props.student} />}   
-        />
+        {/* (TODO) Set routes */}
+        <Switch>
+          {/** Jobs */}
+          <Route path={`${url}job/modify/`} render={
+            (p: RouteComponentProps) => 
+              props.student.job ? 
+                <ModifyStudentJob job={props.student.job} {...p} /> :
+                <StudentNotFound {...p} />
+          } />
+          <Route path={`${url}job/add/`} component={AddStudentJob} />
+          <Route path={`${url}job/`} component={StudentJob} />
 
-        {/** Modify student infos */}
-        <Route 
-          path={`${url}info`} 
-          component={(p: RouteComponentProps) => <StudentHomePage {...p} student={props.student} />}   
-        /> 
+          {/** Interships. */}
+          <Route 
+            path={`${url}intership/`} 
+            component={(p: RouteComponentProps) => <StudentHomePage {...p} />}   
+          />
 
-        {/* Home page. */}
-        <Route 
-          path={url} 
-          exact 
-          component={(p: RouteComponentProps) => <StudentHomePage {...p} student={props.student} />}  
-        />
+          {/** Modify student infos */}
+          <Route 
+            path={`${url}info/`} 
+            component={(p: RouteComponentProps) => <StudentHomePage {...p} />}   
+          /> 
 
-        {/* Not found. */}
-        <Route component={(p: RouteComponentProps) => <StudentNotFound {...p} student={props.student} />} />
-      </Switch>
-    </Dashboard>
+          {/* Home page. */}
+          <Route 
+            path={url} 
+            exact 
+            component={(p: RouteComponentProps) => <StudentHomePage {...p} />}  
+          />
+
+          {/* Not found. */}
+          <Route component={(p: RouteComponentProps) => <StudentNotFound {...p} />} />
+        </Switch>
+      </Dashboard>
+    </StudentContext.Provider>
   );
 }
 
 export default StudentPage;
 
-class StudentHomePage extends React.Component<SPProps> {
+class StudentHomePage extends React.Component<RouteComponentProps> {
+  static contextType = StudentContext;
+  context!: Student;
+
   render() {
-    console.log(this.props)
     return (
       <DashboardContainer>
         Hello, i'm the student dashboard.
         <br />
         <pre>
-          {JSON.stringify(this.props.student, null, 2)}
+          {JSON.stringify(this.context, null, 2)}
         </pre>
       </DashboardContainer>
     );
   }
 }
 
-const StudentNotFound: React.FC<SPProps> = props => {
+const StudentNotFound: React.FC<RouteComponentProps> = (props) => {
+  const context: Student = useContext(StudentContext);
+  
   return (
     <div>
-      Page not found ({props.location.pathname})
+      Page not found ({props.location.pathname}), for student {context.first_name} #{context.id}
     </div>
   );
 }

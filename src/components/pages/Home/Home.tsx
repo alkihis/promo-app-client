@@ -27,7 +27,7 @@ const HomePage: React.FC = () => {
             </div>
           : 
             <div>
-              <Link className="link" to="/login">
+              <Link className="link" to="/login/">
                 <IconButton
                   color="inherit"
                 >
