@@ -90,6 +90,96 @@ export function errorToText(error: APIError | number | undefined | [any, APIErro
   }
 }
 
+export function getMonthText(month: string | number) {
+  const m = Number(month);
+
+  switch (m) {
+    case 1:
+      return "Janvier";
+    case 2:
+      return "Février";
+    case 3:
+      return "Mars";
+    case 4:
+      return "Avril";
+    case 5:
+      return "Mai";
+    case 6:
+      return "Juin";
+    case 7:
+      return "Juillet";
+    case 8:
+      return "Août";
+    case 9:
+      return "Septembre";
+    case 10:
+      return "Octobre";
+    case 11:
+      return "Novembre";
+    case 12:
+      return "Décembre";
+  }
+}
+
+/**
+ * Formate un objet Date en chaîne de caractères potable.
+ * Pour comprendre les significations des lettres du schéma, se référer à : http://php.net/manual/fr/function.date.php
+ * @param schema string Schéma de la chaîne. 
+ * Supporte Y, m, d, g, H, i, s, n, N, v, z, w, F (français, first-uppercase), M (français)
+ * @param date Date Date depuis laquelle effectuer le formatage
+ * @returns string La chaîne formatée
+ */
+export function dateFormatter(schema: string, date = new Date()) : string {
+  function getDayOfTheYear(now: Date): number {
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now.getTime() - start.getTime();
+    const oneDay = 1000 * 60 * 60 * 24;
+    const day = Math.floor(diff / oneDay);
+
+    return day - 1; // Retourne de 0 à 364/365
+  }
+
+  const Y = date.getFullYear();
+  const N = date.getDay() === 0 ? 7 : date.getDay();
+  const n = date.getMonth() + 1;
+  const m = (n < 10 ? "0" : "") + String(n);
+  const M = (d: Date) => getMonthText(d.getMonth() + 1)?.toLocaleLowerCase();
+  const F = (d: Date) => getMonthText(d.getMonth() + 1);
+  const d = ((date.getDate()) < 10 ? "0" : "") + String(date.getDate());
+  const L = Y % 4 === 0 ? 1 : 0;
+
+  const i = ((date.getMinutes()) < 10 ? "0" : "") + String(date.getMinutes());
+  const H = ((date.getHours()) < 10 ? "0" : "") + String(date.getHours());
+  const g = date.getHours();
+  const s = ((date.getSeconds()) < 10 ? "0" : "") + String(date.getSeconds());
+
+  const replacements: any = {
+    Y, m, F, M, d, i, H, g, s, n, N, L, v: date.getMilliseconds(), z: getDayOfTheYear, w: date.getDay()
+  };
+
+  let str = "";
+
+  // Construit la chaîne de caractères
+  for (const char of schema) {
+    if (char in replacements) {
+      if (typeof replacements[char] === 'string') {
+        str += replacements[char];
+      }
+      else if (typeof replacements[char] === 'number') {
+        str += String(replacements[char]);
+      }
+      else {
+        str += String(replacements[char](date));
+      }
+    }
+    else {
+      str += char;
+    }
+  }
+
+  return str;
+}
+
 export const ClassicModal: React.FC<{ 
   open?: boolean, 
   text: string,

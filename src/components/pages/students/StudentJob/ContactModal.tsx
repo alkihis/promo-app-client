@@ -164,8 +164,8 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       <Dialog open={this.props.open!} onClose={this.props.onClose}>
         <DialogTitle>Contact</DialogTitle>
         <form onSubmit={this.makeConfirm}>
-          <DialogContent>
-            <DialogContentText>
+          <DialogContent style={{ minWidth: '40vw' }}>
+            <DialogContentText style={{ marginBottom: '1.5rem', marginTop: '-8px' }}>
               Votre contact dans l'entreprise {this.props.company?.name}.
             </DialogContentText>
             <ContactEmailSelect 
@@ -181,7 +181,6 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
               disabled={!!this.state.selected && this.state.selected.id !== 0}
               value={this.state.name}
               onChange={this.handleNameChange}
-              required
               variant="outlined"
               fullWidth
               label="Nom du contact"
@@ -235,7 +234,6 @@ function ContactEmailSelect(props: {
           {...params}
           label="Email du contact"
           fullWidth
-          required
           type="email"
           onChange={props.onInputChange}
           variant="outlined"

@@ -16,7 +16,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { toast } from '../../../shared/Toaster/Toaster';
 import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 export default class AddStudentJob extends React.Component {
   render() {
@@ -65,7 +65,7 @@ type SJFState = {
   level?: JobLevel;
   wage?: number;
 
-  in_send: boolean;
+  in_send: boolean | null;
 };
 
 class StudentJobForm extends React.Component<SJFProps, SJFState> {
@@ -193,8 +193,9 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
   };
 
   handleWageChange = (evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const v = Number(evt.target.value);
     this.setState({
-      wage: Number(evt.target.value)
+      wage: v ? v : undefined
     });
   };
 
@@ -212,7 +213,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
     });
 
     // Si le contact doit être inséré
-    // TODO gérer modification (sûrement via une fiche d'entreprise ?)
+    // TODO gérer modification (sûrement via une fiche d'entreprise côté enseignant ?)
     let contact = this.state.contact;
     if (contact && contact.id === 0) {
       try {
@@ -254,15 +255,15 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
             user_id: this.context.id,
           }
         });
+        toast("L'emploi a été créé avec succès.", "success");
 
         this.setState({
           existing: job,
-          in_send: false
+          in_send: null
         });
       }
       else {
-        toast("Modification is not supported yet.", "info");
-        /* const job: Job = await APIHELPER.request('job/modify', {
+        const job: Job = await APIHELPER.request('job/modify', {
           method: 'POST',
           parameters: {
             start: this.state.start_date.toDateString(),
@@ -274,12 +275,16 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
             domain: this.state.domain,
             contact: this.state.contact?.id ?? null,
             user_id: this.context.id,
+            job: this.state.existing.id,
           }
-        }); */
+        });
+
+        console.log("Modified", job);
+        toast("L'emploi a été modifié avec succès.", "success");
 
         this.setState({
-          //existing: job,
-          in_send: false
+          existing: job,
+          in_send: null
         });
       }
     } catch (e) {
@@ -291,8 +296,14 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
   };
 
   render() {
+    if (this.state.in_send === null) {
+      return (
+        <Redirect to=".." />
+      );
+    }
+
     return (
-      <div className={classes.container}>
+      <div className={classes.container + " " + classes.dialog + " " + (this.state.in_send ? classes.in_load : "")}>
         <Typography variant="h5" gutterBottom>
           Entreprise
         </Typography>
@@ -438,9 +449,9 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           <Marger size="1rem" />
 
           <div style={{ justifyContent: 'space-between', display: 'flex', flexDirection: 'row' }}>
-            <Link className="link" to="../">
+            <Link className="link no-underline" to="../">
               <Button variant="outlined" type="button" color="secondary">
-                Annuler
+                Retour
               </Button>
             </Link>
             <Button variant="outlined" type="submit" color="primary">

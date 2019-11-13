@@ -28,6 +28,7 @@ const EmbeddedError: React.FC<EEProp> = props => {
       <Typography component="h6" className={classes.text}>
         {t ? t : "Erreur inconnue"}
       </Typography>
+      {props.children}
     </CenterComponent>
   )
 };
@@ -52,6 +53,7 @@ export const EmbeddedInfo: React.FC<{text: string, link?: { internal?: boolean; 
         {t}
       </Typography>
       {link}
+      {props.children}
     </CenterComponent>
   )
 };

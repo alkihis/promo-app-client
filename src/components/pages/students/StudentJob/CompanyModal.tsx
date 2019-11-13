@@ -128,6 +128,12 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
     })
       .then((cps: Company) => {
         this.props.onConfirm?.(cps);
+        // Actualise le tableau si c'est nécessaire (l'entreprise crée n'est pas dedans)
+        if (!this.state.available?.find(e => e.id === cps.id)) {
+          this.setState({
+            available: [...(this.state.available ?? []), cps]
+          });
+        }
       })
       .catch(e => {
         notifyError(e);
@@ -194,6 +200,25 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
     });
   };
 
+  getAvailableTowns() {
+    if (!this.state.available) {
+      return [];
+    }
+
+    const selected = this.state.selected_id || this.props.base?.id;
+
+    if (!selected) {
+      return this.state.available?.map(e => e.town);
+    }
+
+    const s = this.state.available.find(e => e.id === selected);
+    if (!s) {
+      return this.state.available?.map(e => e.town);
+    }
+
+    return this.state.available?.filter(e => e.name === s.name).map(e => e.town);
+  }
+
   render() {
     return (
       <Dialog 
@@ -237,7 +262,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
 
             <CompanyTownSelect 
               value={this.state.town}
-              options={this.state.available?.map(e => e.town)}
+              options={this.getAvailableTowns()}
               onInputChange={this.handleTownChange}
               onChange={this.handleTownNChange} 
               disabled={!this.state.name}

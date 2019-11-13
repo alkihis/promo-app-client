@@ -1,0 +1,19 @@
+.dialog {
+  opacity: 1;
+  transition: .3s;
+}
+
+.in_load {
+  opacity: .2;
+  user-select: none;
+  pointer-events: none;
+}
+
+.card {
+  margin-bottom: 1.2rem;
+}
+
+.job_town {
+  color: lighten($color: #000000, $amount: 30);
+  font-size: .9rem;
+}

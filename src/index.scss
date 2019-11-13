@@ -20,7 +20,7 @@ code {
   color: inherit;
   text-decoration: none;
 }
-.link:hover {
+.link:hover:not(.no-underline) {
   text-decoration: underline;
 }
 

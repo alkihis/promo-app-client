@@ -12,10 +12,11 @@ import ResumeIcon from '@material-ui/icons/Public';
 import WorkIcon from '@material-ui/icons/Work';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
 import IntershipIcon from '@material-ui/icons/ImportContacts';
-import { Student } from '../../../interfaces';
+import { Student, Job } from '../../../interfaces';
 import StudentJob from '../students/StudentJob/StudentJob';
 import StudentContext, { ExtendedStudent } from '../../shared/StudentContext/StudentContext';
 import AddStudentJob, { ModifyStudentJob } from '../students/StudentJob/AddStudentJob';
+import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 
 type SPProps = RouteComponentProps & { student: ExtendedStudent };
 
@@ -29,10 +30,11 @@ export const StudentSelfHome: React.FC<RouteComponentProps> = props => {
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
-  "Emplois": "job",
-  "Ajouter un emploi": "job/add",
-  "Stages": "intership",
-  "Informations": "info",
+  "Emplois": "job/",
+  "Ajouter un emploi": "job/add/",
+  "Modifier un emploi": "job/modify/",
+  "Stages": "intership/",
+  "Informations": "info/",
 };
 
 // Student router
@@ -42,23 +44,23 @@ const StudentPage: React.FC<SPProps> = props => {
       items: [{
         icon: ResumeIcon,
         text: "Résumé",
-        selected: location.pathname === base + ROUTES_AVAILABLE['Résumé'],
+        selected: location.pathname === base,
         linkTo: base
       }, {
         icon: WorkIcon,
         text: "Emplois",
         selected: location.pathname.includes(base + ROUTES_AVAILABLE['Emplois']),
-        linkTo: base + "job"
+        linkTo: base + "job/"
       }, {
         icon: IntershipIcon,
         text: "Stages",
         selected: location.pathname === base + ROUTES_AVAILABLE['Stages'],
-        linkTo: base + "intership"
+        linkTo: base + "intership/"
       }, {
         icon: InfoIcon,
         text: "Informations",
         selected: location.pathname === base + ROUTES_AVAILABLE["Informations"],
-        linkTo: base + "info"
+        linkTo: base + "info/"
       },]
     }, {
       items: [{
@@ -70,6 +72,19 @@ const StudentPage: React.FC<SPProps> = props => {
   }
 
   const [modalopen, setOpen] = React.useState(false);
+  const [job, setJob] = React.useState<Job | undefined>(undefined);
+  function setTheJob(evt: any) {
+    setJob(evt.detail);
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('modify.job', setTheJob);
+
+    return function cleanup() {
+      window.removeEventListener('modify.job', setTheJob);
+    }
+  });
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -111,23 +126,25 @@ const StudentPage: React.FC<SPProps> = props => {
         {/* (TODO) Set routes */}
         <Switch>
           {/** Jobs */}
-          <Route path={`${url}job/modify/`} render={
+          <Route exact path={`${url}job/modify/`} render={
             (p: RouteComponentProps) => 
-              props.student.job ? 
-                <ModifyStudentJob job={props.student.job} {...p} /> :
+              job ? 
+                <ModifyStudentJob job={job} {...p} /> :
                 <StudentNotFound {...p} />
           } />
-          <Route path={`${url}job/add/`} component={AddStudentJob} />
-          <Route path={`${url}job/`} component={StudentJob} />
+          <Route exact path={`${url}job/add/`} component={AddStudentJob} />
+          <Route exact path={`${url}job/`} component={StudentJob} />
 
           {/** Interships. */}
           <Route 
+            exact
             path={`${url}intership/`} 
             component={(p: RouteComponentProps) => <StudentHomePage {...p} />}   
           />
 
           {/** Modify student infos */}
           <Route 
+            exact
             path={`${url}info/`} 
             component={(p: RouteComponentProps) => <StudentHomePage {...p} />}   
           /> 
@@ -136,11 +153,11 @@ const StudentPage: React.FC<SPProps> = props => {
           <Route 
             path={url} 
             exact 
-            component={(p: RouteComponentProps) => <StudentHomePage {...p} />}  
+            component={StudentHomePage}  
           />
 
           {/* Not found. */}
-          <Route component={(p: RouteComponentProps) => <StudentNotFound {...p} />} />
+          <Route component={StudentNotFound} />
         </Switch>
       </Dashboard>
     </StudentContext.Provider>
@@ -166,13 +183,9 @@ class StudentHomePage extends React.Component<RouteComponentProps> {
   }
 }
 
-const StudentNotFound: React.FC<RouteComponentProps> = (props) => {
-  const context: Student = useContext(StudentContext);
+const StudentNotFound: React.FC<RouteComponentProps> = () => {
+  // const context: Student = useContext(StudentContext);
   
-  return (
-    <div>
-      Page not found ({props.location.pathname}), for student {context.first_name} #{context.id}
-    </div>
-  );
+  return <EmbeddedError text="Page non trouvée." />;
 }
 

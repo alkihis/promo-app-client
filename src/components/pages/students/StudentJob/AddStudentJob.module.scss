@@ -2,3 +2,14 @@
   display: flex;
   flex-direction: column;
 }
+
+.dialog {
+  opacity: 1;
+  transition: .3s;
+}
+
+.in_load {
+  opacity: .2;
+  user-select: none;
+  pointer-events: none;
+}
