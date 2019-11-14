@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { Job, Domains } from '../../../../interfaces';
 import StudentContext, { ExtendedStudent } from '../../../shared/StudentContext/StudentContext';
 import APIHELPER from '../../../../APIHelper';
-import { BigPreloader, notifyError, DividerMargin, dateFormatter, studentDashboardLink } from '../../../../helpers';
+import { BigPreloader, notifyError, DividerMargin, dateFormatter, studentDashboardLink, Marger } from '../../../../helpers';
 import { toast } from '../../../shared/Toaster/Toaster';
 import EmbeddedError, { EmbeddedInfo }  from '../../../shared/EmbeddedError/EmbeddedError';
 import { Link } from 'react-router-dom';
@@ -221,6 +221,8 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
           </Button>
         </Link>
       </Typography>
+
+      <Marger size="2rem" />
     </DashboardContainer>;
   }
 

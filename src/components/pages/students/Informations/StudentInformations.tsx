@@ -287,6 +287,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
           </Typography>
 
           <FormationModal
+            base={this.state.previous_formation ?? undefined}
             open={this.state.modal_formation_before}
             onClose={() => this.setState({ modal_formation_before: false })}
             onConfirm={f => this.setState({ previous_formation: f, modal_formation_before: false })}
@@ -307,6 +308,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
             Si vous avez réalisé une thèse après votre master, merci de l'indiquer dans la section Emplois.
           </Typography>
           <FormationModal
+            base={this.state.next_formation ?? undefined}
             open={this.state.modal_formation_after}
             onClose={() => this.setState({ modal_formation_after: false })}
             onConfirm={f => this.setState({ next_formation: f, modal_formation_after: false })}

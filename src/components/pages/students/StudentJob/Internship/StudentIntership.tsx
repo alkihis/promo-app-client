@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { Internship, Domains } from '../../../../../interfaces';
 import StudentContext, { ExtendedStudent } from '../../../../shared/StudentContext/StudentContext';
 import APIHELPER from '../../../../../APIHelper';
-import { BigPreloader, notifyError, DividerMargin, studentDashboardLink } from '../../../../../helpers';
+import { BigPreloader, notifyError, DividerMargin, studentDashboardLink, Marger } from '../../../../../helpers';
 import { toast } from '../../../../shared/Toaster/Toaster';
 import EmbeddedError, { EmbeddedInfo }  from '../../../../shared/EmbeddedError/EmbeddedError';
 import { Link } from 'react-router-dom';
@@ -199,6 +199,8 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
           </Button>
         </Link>
       </Typography>
+
+      <Marger size="2rem" />
     </DashboardContainer>;
   }
 
