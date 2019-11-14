@@ -1,14 +1,14 @@
-import classes from './StudentJob.module.scss';
+import classes from '../StudentJob.module.scss';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Job, Domains, Internship } from '../../../../interfaces';
-import StudentContext, { ExtendedStudent } from '../../../shared/StudentContext/StudentContext';
-import APIHELPER from '../../../../APIHelper';
-import { BigPreloader, notifyError, DividerMargin, dateFormatter } from '../../../../helpers';
-import { toast } from '../../../shared/Toaster/Toaster';
-import EmbeddedError, { EmbeddedInfo }  from '../../../shared/EmbeddedError/EmbeddedError';
+import { Internship, Domains } from '../../../../../interfaces';
+import StudentContext, { ExtendedStudent } from '../../../../shared/StudentContext/StudentContext';
+import APIHELPER from '../../../../../APIHelper';
+import { BigPreloader, notifyError, DividerMargin, studentDashboardLink } from '../../../../../helpers';
+import { toast } from '../../../../shared/Toaster/Toaster';
+import EmbeddedError, { EmbeddedInfo }  from '../../../../shared/EmbeddedError/EmbeddedError';
 import { Link } from 'react-router-dom';
-import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
+import { DashboardContainer } from '../../../../shared/Dashboard/Dashboard';
 import { Card, CardContent, Typography, Button, CardActions, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/DeleteSweep';
@@ -126,7 +126,7 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
     return <EmbeddedInfo 
       text="Vous n'avez aucun stage enregistré" 
       link={{
-        to: "add",
+        to: studentDashboardLink(this.context) + "internship/add/",
         internal: true,
         text: "Ajouter un stage"
       }}
@@ -134,15 +134,17 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
   }
 
   renderJob = (j: Internship) => {
-
+    // Fct de rendu de la card de stage
     return (
       <Card key={j.id} className={classes.card}>
         <CardContent>
+          <Typography className={classes.title} color="textSecondary" gutterBottom>
+            {Domains[j.domain]}
+          </Typography>
           <Typography variant="h5">
             {j.company.name} <span className={classes.job_town}>{j.company.town}</span>
           </Typography>
           <Typography className={classes.date_job} color="textSecondary">
-            {/* todo formatter les dates */}
             Année {j.during}
           </Typography>
           <Typography variant="body2">
@@ -151,7 +153,7 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
         </CardContent>
         <CardActions style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Link 
-            to="modify/" 
+            to={studentDashboardLink(this.context) + "internship/modify/"}
             onClick={() => window.dispatchEvent(new CustomEvent('modify.internship', { detail: j }))} 
             className="link no-underline"
           >
@@ -177,7 +179,7 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
     // Trie les jobs par passé/en cours et par date de début
     const current_jobs = all.sort(sort_fn);
 
-    return <DashboardContainer className={classes.dialog + " " + (this.state.in_delete ? classes.in_load : "")}>
+    return <DashboardContainer maxWidth="md" className={classes.dialog + " " + (this.state.in_delete ? classes.in_load : "")}>
       {this.renderModalDeleteJob()}
       
       <div className={classes.job_container}>
@@ -191,7 +193,7 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
       <DividerMargin size="1.5rem" />
 
       <Typography variant="h5" style={{ textAlign: 'center' }}>
-        <Link to="add/" className="link no-underline">
+        <Link to={studentDashboardLink(this.context) + "internship/add/"} className="link no-underline">
           <Button variant="outlined" fullWidth>
             Ajouter un stage
           </Button>

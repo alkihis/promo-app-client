@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { Job, Domains } from '../../../../interfaces';
 import StudentContext, { ExtendedStudent } from '../../../shared/StudentContext/StudentContext';
 import APIHELPER from '../../../../APIHelper';
-import { BigPreloader, notifyError, DividerMargin, dateFormatter } from '../../../../helpers';
+import { BigPreloader, notifyError, DividerMargin, dateFormatter, studentDashboardLink } from '../../../../helpers';
 import { toast } from '../../../shared/Toaster/Toaster';
 import EmbeddedError, { EmbeddedInfo }  from '../../../shared/EmbeddedError/EmbeddedError';
 import { Link } from 'react-router-dom';
@@ -126,7 +126,7 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
     return <EmbeddedInfo 
       text="Vous n'avez aucun emploi enregistré" 
       link={{
-        to: "add",
+        to: studentDashboardLink(this.context) + "job/add/",
         internal: true,
         text: "Ajouter un emploi"
       }}
@@ -164,7 +164,7 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
         </CardContent>
         <CardActions style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Link 
-            to="modify/" 
+            to={studentDashboardLink(this.context) + "job/modify/"}
             onClick={() => window.dispatchEvent(new CustomEvent('modify.job', { detail: j }))} 
             className="link no-underline"
           >
@@ -191,7 +191,7 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
     const current_jobs = all.filter(j => !j.to).sort(sort_fn);
     const past_jobs = all.filter(j => j.to).sort(sort_fn);    
 
-    return <DashboardContainer className={classes.dialog + " " + (this.state.in_delete ? classes.in_load : "")}>
+    return <DashboardContainer maxWidth="md" className={classes.dialog + " " + (this.state.in_delete ? classes.in_load : "")}>
       {this.renderModalDeleteJob()}
       
       {!!current_jobs.length && <div className={classes.job_container}>
@@ -215,7 +215,7 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
       <DividerMargin size="1.5rem" />
 
       <Typography variant="h5" style={{ textAlign: 'center' }}>
-        <Link to="add/" className="link no-underline">
+        <Link to={studentDashboardLink(this.context) + "job/add/"} className="link no-underline">
           <Button variant="outlined" fullWidth>
             Ajouter un emploi
           </Button>

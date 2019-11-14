@@ -1,10 +1,10 @@
 import React from 'react';
-import classes from './AddStudentJob.module.scss';
+import classes from './Forms.module.scss';
 import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
 import { Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem, Input, FormHelperText, InputAdornment, TextField, Button } from '@material-ui/core';
 import { Job, Company, Contact, Domain, Domains, JobLevels, JobTypes, JobLevel, JobType, Student } from '../../../../interfaces';
 import CompanyModal, { CompanyResume } from './CompanyModal';
-import { Marger, errorToText } from '../../../../helpers';
+import { Marger, errorToText, studentDashboardLink } from '../../../../helpers';
 import ContactModal, { ContactResume } from './ContactModal';
 import DateFnsUtils from '@date-io/date-fns';
 import { fr } from "date-fns/locale";
@@ -21,7 +21,7 @@ import { Link, Redirect } from 'react-router-dom';
 export default class AddStudentJob extends React.Component {
   render() {
     return (
-      <DashboardContainer>
+      <DashboardContainer maxWidth="md">
         <Typography variant="h4" className={classes.main_header} gutterBottom>
           Ajouter un emploi
         </Typography>
@@ -34,7 +34,7 @@ export default class AddStudentJob extends React.Component {
 export class ModifyStudentJob extends React.Component<{ job: Job }> {
   render() {
     return (
-      <DashboardContainer>
+      <DashboardContainer maxWidth="md">
         <Typography variant="h4" className={classes.main_header} gutterBottom>
           Modifier un emploi
         </Typography>
@@ -212,6 +212,35 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
       in_send: true
     });
 
+    let active_company = this.state.company;
+
+    // L'entreprise doit être insérée
+    if (active_company.id === 0) {
+      try {
+        const cps: Company = await APIHELPER.request('company/create', { 
+          parameters: { 
+            user_id: this.context.id,
+            name: active_company.name,
+            size: active_company.size,
+            status: active_company.status,
+            city: active_company.town,
+          },
+          method: 'POST'
+        });
+
+        active_company = cps;
+        this.setState({
+          company: active_company
+        });
+      } catch (e) {
+        toast("Impossible d'ajouter l'entreprise dans la base de données: " + errorToText(e), "error");
+        this.setState({
+          in_send: false
+        });
+        return;
+      }
+    }
+
     // Si le contact doit être inséré
     // TODO gérer modification (sûrement via une fiche d'entreprise côté enseignant ?)
     let contact = this.state.contact;
@@ -222,7 +251,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           parameters: {
             name: contact.name,
             mail: contact.email,
-            id_entreprise: contact.linked_to
+            id_entreprise: active_company.id
           }
         });
 
@@ -234,6 +263,9 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           in_send: false
         });
         toast("Impossible d'ajouter le contact dans la base de données: " + errorToText(e), "error");
+        this.setState({
+          in_send: false
+        });
         return;
       }
     }
@@ -249,7 +281,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
             contract: this.state.type,
             salary: this.state.wage ?? null,
             level: this.state.level,
-            company: this.state.company.id,
+            company: active_company.id,
             domain: this.state.domain,
             contact: this.state.contact?.id ?? null,
             user_id: this.context.id,
@@ -271,7 +303,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
             contract: this.state.type,
             salary: this.state.wage ?? null,
             level: this.state.level,
-            company: this.state.company.id,
+            company: active_company.id,
             domain: this.state.domain,
             contact: this.state.contact?.id ?? null,
             user_id: this.context.id,
@@ -298,7 +330,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
   render() {
     if (this.state.in_send === null) {
       return (
-        <Redirect to=".." />
+        <Redirect to={studentDashboardLink(this.context) + "job/"} />
       );
     }
 
@@ -464,7 +496,10 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           <Marger size="1rem" />
 
           <div style={{ justifyContent: 'space-between', display: 'flex', flexDirection: 'row' }}>
-            <Link className="link no-underline" to="../">
+            <Link 
+              className="link no-underline" 
+              to={studentDashboardLink(this.context) + "job/"}
+            >
               <Button variant="outlined" type="button" color="secondary">
                 Retour
               </Button>

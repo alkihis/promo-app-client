@@ -1,6 +1,6 @@
 import React from 'react';
 import { Company, CompanyStatuses, CompanySizes, CompanySize, CompanyStatus, Student } from '../../../../interfaces';
-import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Checkbox, FormControlLabel } from '@material-ui/core';
+import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Checkbox, FormControlLabel, Hidden } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import classes from './Modals.module.scss';
 import { Marger, notifyError, DividerMargin } from '../../../../helpers';
@@ -102,7 +102,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
 
     let name: string, size: CompanySize, status: CompanyStatus, town: string;
 
-    if (this.state.selected_id) {
+    if (this.state.selected_id !== undefined) {
       const comp = this.state.available?.find(c => c.id === this.state.selected_id);
 
       if (comp) {
@@ -130,32 +130,27 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
     }
 
     // TODO gérer modification et pas création
+    const cps: Company = {
+      id: 0,
+      name: this.state.name!,
+      size: this.state.size!,
+      status: this.state.status!,
+      town: this.state.town!,
+    };
 
-    APIHELPER.request('company/create', { 
-      parameters: { 
-        user_id: this.context.id,
-        name: this.state.name,
-        size: this.state.size,
-        status: this.state.status,
-        city: this.state.town,
-      },
-      method: 'POST'
-    })
-      .then((cps: Company) => {
-        this.props.onConfirm?.(cps);
-        // Actualise le tableau si c'est nécessaire (l'entreprise crée n'est pas dedans)
-        if (!this.state.available?.find(e => e.id === cps.id)) {
-          this.setState({
-            available: [...(this.state.available ?? []), cps]
-          });
-        }
-      })
-      .catch(e => {
-        notifyError(e);
-      })
-      .finally(() => {
-        this.setState({ in_confirm: false });
+    this.props.onConfirm?.(cps);
+    if (!this.state.available?.find(e => e.id === cps.id)) {
+      this.setState({
+        available: [...(this.state.available ?? []), cps],
+        selected_id: cps.id,
+        in_confirm: false
       });
+    }
+    else {
+      this.setState({
+        in_confirm: false
+      });
+    }
   };
 
   handleStatusChange = (evt: React.ChangeEvent<{ value: unknown }>) => {
@@ -235,7 +230,7 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
   }
 
   render() {
-    const selected_value = this.state.available && this.state.selected_id ? 
+    const selected_value = this.state.available && this.state.selected_id !== undefined ? 
       this.state.available.find(f => f.id === this.state.selected_id) : 
       undefined;
 
@@ -256,9 +251,11 @@ export default class CompanyModal extends React.Component<CMProps, CMState> {
               Entreprise
             </Typography>
 
-            <Button color="inherit" onClick={this.props.onClose}>
-              Annuler
-            </Button>
+            <Hidden smDown>
+              <Button color="inherit" onClick={this.props.onClose}>
+                Annuler
+              </Button>
+            </Hidden>
 
             <Button color="inherit" onClick={this.makeConfirm}>
               Sauvegarder

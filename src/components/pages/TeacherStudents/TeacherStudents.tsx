@@ -115,7 +115,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
 
   editButton(id_etu: number) {
     return (
-      <Link to={"/teacher/dashboard/" + String(id_etu)}>
+      <Link to={"/teacher/dashboard/" + String(id_etu) + "/"}>
         <IconButton size="small">
           <EditIcon />
         </IconButton>

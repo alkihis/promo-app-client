@@ -26,3 +26,17 @@
 .flex_end {
   justify-content: flex-end;
 }
+
+.grid_two_column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px 20px;
+
+  @media screen and (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid_two_column.gap {
+  row-gap: 1.5rem;
+}

@@ -68,9 +68,9 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
   }
 
   refreshContacts() {
-    if (!this.props.company) {
+    if (!this.props.company || this.props.company.id === 0) {
       this.setState({
-        available: undefined
+        available: []
       });
       return;
     }
@@ -85,7 +85,7 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       })
       .catch(e => {
         this.setState({
-          available: undefined
+          available: []
         });
         notifyError(e);
       });
@@ -164,7 +164,7 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       <Dialog open={this.props.open!} onClose={this.props.onClose}>
         <DialogTitle>Contact</DialogTitle>
         <form onSubmit={this.makeConfirm}>
-          <DialogContent style={{ minWidth: '40vw' }}>
+          <DialogContent style={{ minWidth: '10vw', maxWidth: '550px' }}>
             <DialogContentText style={{ marginBottom: '1.5rem', marginTop: '-8px' }}>
               Votre contact dans l'entreprise {this.props.company?.name}.
             </DialogContentText>

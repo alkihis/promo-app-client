@@ -11,10 +11,17 @@ export interface Student {
   next_formation: Formation | null;
 }
 
+export const FormationLevels = {
+  license: "Licence",
+  master: "Master",
+  phd: "Doctorat",
+  other: "Autre",
+};
+export type FormationLevel = keyof typeof FormationLevels;
 export interface Formation {
   id: number;
   branch: string;
-  level: "licence" | "master" | "doctorat" | "other";
+  level: FormationLevel;
   location: string;
 }
 
@@ -22,6 +29,7 @@ export interface Internship {
   id: number;
   during: string;
   owner: Student | number;
+  domain: Domain;
   company: Company;
   referrer?: Contact;
 }

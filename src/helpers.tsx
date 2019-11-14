@@ -2,6 +2,8 @@ import APIHELPER, { APIError } from "./APIHelper";
 import React from 'react';
 import { Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Divider } from "@material-ui/core";
 import { toast } from "./components/shared/Toaster/Toaster";
+import { Student } from "./interfaces";
+import SETTINGS, { LoggedLevel } from "./Settings";
 
 export function setPageTitle(title?: string, absolute = false) {
   if (!absolute)
@@ -47,6 +49,21 @@ export function notifyError(error: APIError | [any, APIError | undefined] | unde
 
   console.error(error);
   toast(errorToText(error), "error");
+}
+
+export function studentDashboardLink(student: Student) {
+  if (SETTINGS.logged === LoggedLevel.teacher) {
+    return "/teacher/dashboard/" + String(student.id) + "/"
+  }
+  return "/student/";
+}
+
+export function uppercaseFirst(str: string) {
+  if (str.length === 0) {
+    return str;
+  }
+
+  return str[0].toLocaleUpperCase() + str.slice(1);
 }
 
 export function errorToText(error: APIError | number | undefined | [any, APIError]) : string {
@@ -184,7 +201,7 @@ export const ClassicModal: React.FC<{
   open?: boolean, 
   text: string,
   explaination: string,
-  validateText: string,
+  validateText?: string,
   onClose?: () => void,
   onValidate?: () => void,
   onCancel?: () => void
