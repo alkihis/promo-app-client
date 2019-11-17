@@ -5,6 +5,7 @@ import StudentPage from '../StudentHome/StudentHome';
 import { Student } from '../../../interfaces';
 import { BigPreloader } from '../../../helpers';
 import APIHELPER from '../../../APIHelper';
+import { FullError } from '../../shared/EmbeddedError/EmbeddedError';
 
 const TeacherStudentWrapper: React.FC<RouteComponentProps> = props => {
   const { id: student_id } = useParams();
@@ -15,7 +16,13 @@ const TeacherStudentWrapper: React.FC<RouteComponentProps> = props => {
 
   // TODO error msg
   if (!int_id || isNaN(int_id)) {
-    return <div>Invalid student ID</div>;
+    return <FullError
+      text="L'identifiant de l'étudiant est invalide."
+      button={{
+        link: "/teacher/student/all",
+        text: "Retour aux étudiants"
+      }}
+    />;
   }
 
   if (student === null) {
@@ -34,13 +41,25 @@ const TeacherStudentWrapper: React.FC<RouteComponentProps> = props => {
       })
   }
 
-  // TODO Component for error messages !!!!!
+  // typeof student === 'object' and student !== null
   if (student && typeof student !== 'number')
     return <StudentPage {...props} student={student} />;
   else if (typeof student === 'number')
-    return <div>Erreur code {student}</div>;
+    return <FullError
+      error={student}
+      button={{
+        link: "/teacher/student/all",
+        text: "Retour aux étudiants"
+      }}
+    />;
   else if (student === undefined)
-    return <div>Erreur réseau</div>;
+    return <FullError
+      text="Erreur réseau."
+      button={{
+        link: "/teacher/student/all",
+        text: "Retour aux étudiants"
+      }}
+    />;
   else
     return <BigPreloader style={{ height: '100vh' }} />;
 }

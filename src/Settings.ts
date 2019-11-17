@@ -40,7 +40,9 @@ class Settings {
 
       if (this._user_object !== undefined) {
         // Lance la validation de l'utilisateur
-        this.validateUser();
+        setTimeout(() => {
+          this.validateUser();
+        }, 5);
       }
     }
   }

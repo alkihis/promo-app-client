@@ -9,7 +9,14 @@ export interface Student {
   graduated: boolean;
   previous_formation: Formation | null;
   next_formation: Formation | null;
+  jobs?: Job[];
+  internships?: Internship[];
+  last_update: string; // Date
 }
+export type PartialStudent = {
+  jobs?: PartialJob[];
+  internships?: PartialInternship[];
+} | Student;
 
 export const FormationLevels = {
   license: "Licence",
@@ -33,6 +40,9 @@ export interface Internship {
   company: Company;
   referrer?: Contact;
 }
+export type PartialInternship = Internship | {
+  company: number;
+};
 
 export interface Job {
   id: number;
@@ -41,11 +51,14 @@ export interface Job {
   referrer?: Contact;
   domain: Domain;
   from: string;
-  to: string;
+  to: string | null;
   type: JobType;
   wage: number;
   level: JobLevel;
 }
+export type PartialJob = Job | {
+  company: number;
+};
 
 export const Domains = {
   "r_d": "Recherche et développement",

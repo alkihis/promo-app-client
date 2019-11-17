@@ -3,6 +3,7 @@ import classes from './LoginWrapper.module.scss';
 import SETTINGS, { LoggedLevel } from '../../../Settings';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import { BigPreloader } from '../../../helpers';
+import { FullError } from '../EmbeddedError/EmbeddedError';
 
 export type AllowedLoginState = "none" | "progress" | "student" | "teacher" | "error";
 
@@ -62,11 +63,13 @@ export default class LoginWrapper extends React.Component<LWProps> {
         return <this.props.onInvalidCredentials />;
     }
 
-    return (
-      <div>
-        You're not allowed to access this page
-      </div>
-    );
+    return <FullError
+      text="L'accès à cette page n'est pas autorisé."
+      button={{
+        link: "/",
+        text: "Page d'accueil"
+      }}
+    />;
   }
 
   renderInLog() {
@@ -92,11 +95,13 @@ export default class LoginWrapper extends React.Component<LWProps> {
         return <this.props.onNotLogged />;
     }
 
-    return (
-      <div>
-        You're not logged. Please log-in.
-      </div>
-    );
+    return <FullError
+    text="Vous n'êtes pas connecté•e. Connectez-vous."
+    button={{
+      link: "/login/",
+      text: "Connexion"
+    }}
+  />
   }
 
   renderError() {
@@ -108,13 +113,14 @@ export default class LoginWrapper extends React.Component<LWProps> {
         return <this.props.onError />;
     }
 
-    return (
-      <div>
-        Unable to login. 
-        It may be a server error, or your credentials aren't valid anymore.
-        Try to <Link to="/login/">Login</Link> again.
-      </div>
-    );
+    return <FullError
+      text="Impossible de se connecter. Ceci peut être une erreur serveur,
+        ou alors vos clés d'accès ne sont plus valides."
+      button={{
+        link: "/login/",
+        text: "Page de connexion"
+      }}
+    />;
   }
 
   render() {

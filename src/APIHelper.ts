@@ -1,10 +1,9 @@
 import SETTINGS from "./Settings";
 import { BASE_API_URL } from "./constants";
 
-const LATENCY_ON_EVERY_REQUEST = 500;
+const LATENCY_ON_EVERY_REQUEST = 100;
 
 export class APIHelper {
-
   /**
    * Send a request to API.
    * If successful, Promise contains response content, parsed if JSON.

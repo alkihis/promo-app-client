@@ -237,3 +237,110 @@ export function Marger(props: { size: number | string }) {
   return <div style={{ marginTop: props.size, marginBottom: props.size, width: '100%', height: '1px' }} />;
 }
 
+export interface StudentFilters {
+  /** L'étudiant est diplômé. Ou non. */
+  graduated?: boolean;
+  /** L'étudiant valide l'année spécifiée */
+  year?: {
+    /** string: valide l'année voulue. Plus complexe: filter fn */
+    in?: string | ((year: string, index: number, student: Student) => boolean);
+    /** string: valide l'année voulue. Plus complexe: filter fn. null signifie pas sorti du master. */
+    out?: string | null | ((year: string | null, index: number, student: Student) => boolean);
+  };
+  /** L'étudiant travaille: Oui / Non */
+  at_work?: boolean;
+  /** L'étudiant est actuellement dans le master */
+  in_master?: boolean;
+  /** L'étudiant n'a pas entré d'informations durant x mois (0: tous) */
+  inactive_since?: number;
+  /** Etudiants réorientés */
+  have_next_formation?: boolean;
+  /** Etudiants ayant une / en thèse */
+  with_thesis?: boolean;
+}
+export function studentSorter(students: Student[], filters: StudentFilters) {
+  let i = -1;
+  return students.filter(s => {
+    i++;
+
+    if (filters.graduated !== undefined && s.graduated !== filters.graduated) {
+      return false;
+    }
+
+    if (filters.year?.in) {
+      const in_year = filters.year.in;
+      
+      if (typeof in_year === 'string' && s.year_in !== in_year) {
+        return false;
+      }
+      else if (typeof in_year === 'function') {
+        if (!in_year(s.year_in, i, s)) {
+          return false;
+        }
+      }
+    }
+
+    if (filters.year?.out !== undefined) {
+      const out_year = filters.year.out;
+      
+      if (typeof out_year === 'string' && s.year_out !== out_year) {
+        return false;
+      }
+      if (typeof out_year === 'object' && (s.year_out ?? null) !== out_year) {
+        return false;
+      }
+      else if (typeof out_year === 'function') {
+        if (!out_year(s.year_out ?? null, i, s)) {
+          return false;
+        }
+      }
+    }
+
+    if (filters.in_master !== undefined) {
+      const in_master = (s.year_out ?? null) === null;
+
+      if (in_master !== filters.in_master) {
+        return false;
+      }
+    }
+
+    if (filters.at_work !== undefined) {
+      const at_work = !!s.jobs?.some(j => (j.to ?? null) === null);
+
+      if (at_work !== filters.at_work) {
+        return false;
+      }
+    }
+
+    if (filters.inactive_since !== undefined) {
+      const from_months = filters.inactive_since;
+      const inactive_date = new Date(s.last_update);
+      const now = new Date();
+
+      now.setMonth(now.getMonth() - from_months);
+
+      if (now.getTime() > inactive_date.getTime()) {
+        return false;
+      }
+    }
+
+    if (filters.have_next_formation !== undefined) {
+      const have_next = !!s.next_formation;
+
+      if (filters.have_next_formation !== have_next) {
+        return false;
+      }
+    }
+
+    if (filters.with_thesis !== undefined) {
+      const have_thesis = !!s.jobs?.some(j => j.type === "these");
+
+      if (filters.with_thesis !== have_thesis) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
