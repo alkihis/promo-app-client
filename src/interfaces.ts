@@ -60,23 +60,24 @@ export type PartialJob = Job | {
   company: number;
 };
 
-export const Domains = {
-  "r_d": "Recherche et développement",
-  "other": "Autre",
+export const Domains: { [domain: string]: string } = {
+  other: "Autre",
 };
-export type Domain = keyof typeof Domains;
+export type Domain = string;
 
 export const JobTypes = {
   cdi: "CDI", 
   cdd: "CDD", 
   alternance: "Alternance",
-  these: "Thèse", // TODO!
+  these: "Thèse",
 };
 export type JobType = keyof typeof JobTypes;
 
 export const JobLevels = {
   technicien: "Technicien", 
-  ingenieur: "Ingénieur", // TODO !
+  ingenieur: "Ingénieur", 
+  doctorant: "Doctorant",
+  alternant: "Alternant",
 };
 export type JobLevel = keyof typeof JobLevels;
 
@@ -97,7 +98,7 @@ export interface Company {
 
 export const CompanySizes = {
   small: "Petite (jusqu'à 30 salariés)",
-  medium: "Moyenne (jusqu'à 150 salariés)",
+  medium: "Moyenne (jusqu'à 250 salariés)",
   big: "Grande (jusqu'à 1000 salariés)",
   very_big: "Très grande (au delà)"
 };

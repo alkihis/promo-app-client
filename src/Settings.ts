@@ -1,4 +1,4 @@
-import { Student } from "./interfaces";
+import { Student, Domains } from "./interfaces";
 import APIHELPER, { APIError } from "./APIHelper";
 import { throwCodeOrUndefined, notifyError } from "./helpers";
 
@@ -111,6 +111,15 @@ class Settings {
     }
   }
 
+  downloadDomains() {
+    return APIHELPER.request('domain/all').then((domains: {domain: string, name: string}[]) => {
+      for (const d of domains) {
+        // Enregistre les domaines depuis la base de données
+        Domains[d.domain] = d.name;
+      }
+    });
+  }
+
   async loginAs(key_or_password: string, teacher: boolean) {
     if (this.login_pending) {
       return this.login_promise;
@@ -118,7 +127,9 @@ class Settings {
 
     this.login_pending = true;
     return (
-      this.login_promise = this.doLogin(key_or_password, teacher)
+      this.login_promise = Promise.all(
+        [this.doLogin(key_or_password, teacher), this.downloadDomains()]
+      )
     ).finally(() => {
       this.login_pending = false;
     });
@@ -180,7 +191,9 @@ class Settings {
 
     this.login_pending = true;
     return (
-      this.login_promise = this.checkValidity()
+      this.login_promise = Promise.all(
+        [this.checkValidity(), this.downloadDomains()]
+      )
     ).finally(() => { this.login_pending = false; });
   }
 
