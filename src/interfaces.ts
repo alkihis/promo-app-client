@@ -19,7 +19,7 @@ export type PartialStudent = {
 } | Student;
 
 export const FormationLevels = {
-  license: "Licence",
+  licence: "Licence",
   master: "Master",
   phd: "Doctorat",
   other: "Autre",
