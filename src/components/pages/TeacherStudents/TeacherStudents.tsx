@@ -10,21 +10,27 @@ import TableRow from '@material-ui/core/TableRow';
 import { DashboardContainer } from '../../shared/Dashboard/Dashboard';
 import { Student, PartialStudent, Company, PartialJob, PartialInternship } from '../../../interfaces';
 import APIHELPER from '../../../APIHelper';
-import { BigPreloader, ClassicModal, studentSorter } from '../../../helpers';
+import { BigPreloader, ClassicModal, studentSorter, Marger, StudentFilters } from '../../../helpers';
 import { toast } from '../../shared/Toaster/Toaster';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Link } from 'react-router-dom';
-import { IconButton, Checkbox } from '@material-ui/core';
+import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent } from '@material-ui/core';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
+import StudentFindOptions from './StudentFindOptions';
+import ModalSendEmail from './SendEmail';
 
 type TSState = {
   page: number;
   rows_count: number;
-  rows: Data[] | undefined | null;
-  active_rows?: Data[];
+  rows: Student[] | undefined | null;
+  rows_after_filter?: Student[];
+  rows_after_filter_and_search?: Student[];
   delete_modal_open: false | null | number;
   checked: Set<number>;
+  search_text: string;
+  modal_email_select: string | false;
+  modal_send_mail: Student[] | false;
 }
 
 export default class TeacherStudents extends React.Component<{}, TSState> {
@@ -33,8 +39,10 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     rows_count: 25,
     rows: undefined,
     delete_modal_open: false,
-    active_rows: undefined,
     checked: new Set(),
+    search_text: "",
+    modal_email_select: false,
+    modal_send_mail: false,
   };
 
   checkbox_refs: { [studentId: string]: React.RefObject<HTMLInputElement> } = {};
@@ -58,14 +66,8 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
             }
         }
 
-        window.DEBUG.students = {
-          rows: data.students, sort: studentSorter
-        };
-        window.DEBUG.array = this;
-
         this.setState({
-          rows: data.students as Student[],
-          active_rows: data.students as Student[],
+          rows: data.students as Student[]
         });
       })
       .catch(() => {
@@ -77,10 +79,10 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
   }
 
   checkAll = () => {
-    const all_ids = this.state.active_rows!.map(r => r.id);
+    const all_ids = this.active_rows!.map(r => r.id);
 
     for (const checkbox of Object.values(this.checkbox_refs)) {
-      if (checkbox !== null) {
+      if (checkbox.current !== null) {
         checkbox.current!.checked = true;
       }
     }
@@ -92,7 +94,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
 
   uncheckAll = () => {
     for (const checkbox of Object.values(this.checkbox_refs)) {
-      if (checkbox !== null) {
+      if (checkbox.current !== null) {
         checkbox.current!.checked = false;
       }
     }
@@ -104,15 +106,17 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
 
   checkSome = (ids: number[]) => {
     const ids_as_set = new Set(ids);
-    const all_ids = this.state.active_rows!.map(r => r.id).filter(i => ids_as_set.has(i));
+    const all_ids = this.active_rows!.map(r => r.id).filter(i => ids_as_set.has(i));
 
     for (const [id, checkbox] of Object.entries(this.checkbox_refs)) {
       if (checkbox !== null) {
         if (all_ids.includes(Number(id))) {
-          checkbox.current!.checked = true;
+          if (checkbox.current)
+            checkbox.current.checked = true;
         }
         else {
-          checkbox.current!.checked = false;
+          if (checkbox.current)
+            checkbox.current.checked = false;
         }
       }
     }
@@ -120,6 +124,33 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     this.setState({
       checked: new Set(all_ids)
     });
+  };
+
+  searchChange = (evt: any) => {
+    const search_text = evt.target.value as string;
+    if (search_text && this.state.rows) {
+      const search = new RegExp(search_text, "i");
+
+      // TODO maybe optimize ?
+      // Filtre les lignes pour avoir celles qui coincident avec le champ de texte
+      const active_rows = this.active_rows_wout_search!.filter(row => {
+        return !!row.email.match(search) || 
+          !!(row.last_name + " " + row.first_name).match(search) ||
+          !!(row.first_name + " " + row.last_name).match(search) ||
+          !!row.year_in.match(search)
+      });
+
+      this.setState({
+        search_text,
+        rows_after_filter_and_search: active_rows
+      });
+    }
+    else {
+      this.setState({
+        search_text,
+        rows_after_filter_and_search: undefined
+      });
+    }
   }
 
   handleCheckStudent = (id: number, check: boolean) => {
@@ -171,7 +202,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
       delete_modal_open: null
     });
 
-    let rows = this.state.rows as Data[];
+    let rows = this.state.rows as Student[];
     
     try {
       await APIHELPER.request('student/' + String(id), { method: 'DELETE' });
@@ -189,6 +220,16 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
       rows: rows
     });
   }
+
+  handleFilterChange = (filters: StudentFilters) => {
+    if (this.state.rows) {
+      this.setState({
+        rows_after_filter: studentSorter(this.state.rows, filters),
+        search_text: "",
+        rows_after_filter_and_search: undefined,
+      });
+    }
+  };
 
   loader() {
     return <BigPreloader style={{ marginTop: '5rem' }} />;
@@ -216,6 +257,160 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     );
   }
 
+  modalSendEmail() {
+    return (
+      !!this.state.modal_send_mail && <ModalSendEmail 
+        open={true} 
+        mails={this.state.modal_send_mail} 
+        onClose={() => this.setState({ modal_send_mail: false })}
+      />
+    );
+  }
+
+  modalSelectEmail() {
+    return (
+      <Dialog open={!!this.state.modal_email_select}>
+        {this.state.modal_email_select ? <>
+          <DialogContent style={{ minWidth: '40vw' }}>
+            <TextField
+              style={{ width: "100%" }}
+              id="modal-email-addresses" 
+              value={this.state.modal_email_select}
+              label="Adresses e-mail"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              color="secondary" 
+              onClick={() => {
+                (document.getElementById('modal-email-addresses') as HTMLInputElement).select();
+                document.execCommand("copy");
+                toast('Les adresses e-mail ont été copiées dans votre presse-papiers.');
+              }}
+            >
+              Copier adresses
+            </Button>
+            <Button onClick={() => this.setState({ modal_email_select: "" })}>
+              Fermer
+            </Button>
+          </DialogActions>
+        </> : ""}
+      </Dialog>
+    );
+  }
+
+  renderRow = (row: Student) => {
+    const trs = columns.map(column => {
+      // @ts-ignore
+      const value = row[column.id];
+      return (
+        <TableCell key={column.id} align={column.align}>
+          {column.format ? column.format(value) : value}
+        </TableCell>
+      );
+    });
+
+    let ref: any;
+    if (row.id in this.checkbox_refs) {
+      ref = this.checkbox_refs[row.id];
+    }
+    else {
+      ref = this.checkbox_refs[row.id] = React.createRef<HTMLInputElement>();
+    }
+
+    // Ajoute les checkbox et boutons d'édition (ligne)
+    trs.unshift(
+      <TableCell key="editdelete">
+        <div className={classes.buttons}>
+          {this.editButton(row.id)} {this.deleteButton(row.id)}
+        </div>
+      </TableCell>,
+      <TableCell key="checkbox">
+        <Checkbox
+          checked={this.state.checked.has(row.id)}
+          onChange={(_: any, checked: boolean) => this.handleCheckStudent(row.id, checked)}
+          ref={ref}
+          value="checked_student"
+        />
+      </TableCell>
+    );
+    
+    return (
+      <TableRow 
+        hover 
+        role="checkbox" 
+        tabIndex={-1} 
+        key={row.id}
+      >
+        {trs}
+      </TableRow>
+    );
+  };
+
+  get active_rows() {
+    return this.state.rows_after_filter_and_search ?? 
+      this.state.rows_after_filter ??
+      this.state.rows;
+  }
+
+  get active_rows_wout_search() {
+    return this.state.rows_after_filter ??
+      this.state.rows;
+  }
+
+  get selected_students() {
+    return this.active_rows?.filter(stu => this.state.checked.has(stu.id)) ?? [];
+  }
+
+  selectedInformations() {
+    const total = this.state.rows!.length;
+    const filtered = this.active_rows!.length;
+    const has_filter = total !== filtered;
+
+    const selected_students = this.selected_students;
+    const selected = selected_students.length;
+
+    return (
+      <div className={classes.selected_info_root}>
+        <div className={classes.selected_text}>
+          {total} étudiants enregistrés{has_filter ? `, ${filtered} étudiant(s) affiché(s)` : ""}.
+
+          <br />
+
+          {selected ?
+            (selected > 1 ? `${selected} étudiants sont sélectionnés` : "1 étudiant est sélectionné")
+          : "Aucun étudiant n'est sélectionné"}.
+        </div>
+
+        <div className={classes.selection_btns}>
+          <Button 
+            className={classes.send_mail_btn} 
+            disabled={!this.state.checked.size}
+            onClick={() => this.setState({ modal_send_mail: this.selected_students })}
+          >
+            Envoyer un e-mail
+          </Button>
+          <Button 
+            className={classes.clipboard_cpy_btn} 
+            disabled={!this.state.checked.size}
+            onClick={() => {
+              const addresses = selected_students
+                .map(etu => `${etu.first_name} ${etu.last_name} <${etu.email}>`)
+                .join(', ');
+
+              this.setState({
+                modal_email_select: addresses
+              });
+            }}
+          >
+            Copier les adresses
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // TODO table sort by column (see doc material ui, example)
   render() {
     if (this.state.rows === undefined) {
       return this.loader();
@@ -224,55 +419,9 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
       return this.errorMsg();
     }
 
-    const rows = this.state.active_rows!.slice(
-      this.state.page * this.state.rows_count, 
-      this.state.page * this.state.rows_count + this.state.rows_count
-    ).map(row => {
-      const trs = columns.map(column => {
-        // @ts-ignore
-        const value = row[column.id];
-        return (
-          <TableCell key={column.id} align={column.align}>
-            {column.format ? column.format(value) : value}
-          </TableCell>
-        );
-      });
-
-      let ref: any;
-      if (row.id in this.checkbox_refs) {
-        ref = this.checkbox_refs[row.id];
-      }
-      else {
-        ref = this.checkbox_refs[row.id] = React.createRef<HTMLInputElement>();
-      }
-
-      trs.unshift(
-        <TableCell key="editdelete">
-          <div className={classes.buttons}>
-            {this.editButton(row.id)} {this.deleteButton(row.id)}
-          </div>
-        </TableCell>,
-        <TableCell key="checkbox">
-          <Checkbox
-            checked={this.state.checked.has(row.id)}
-            onChange={(_: any, checked: boolean) => this.handleCheckStudent(row.id, checked)}
-            ref={ref}
-            value="checked_student"
-          />
-        </TableCell>
-      );
-      
-      return (
-        <TableRow 
-          hover 
-          role="checkbox" 
-          tabIndex={-1} 
-          key={row.id}
-        >
-          {trs}
-        </TableRow>
-      );
-    });
+    const rows = this.active_rows!
+      .slice(this.state.page * this.state.rows_count, this.state.page * this.state.rows_count + this.state.rows_count)
+      .map(this.renderRow);
 
     const cols = columns.map(column => (
       <TableCell
@@ -283,13 +432,23 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         {column.label}
       </TableCell>
     ));
+
+    // Calcule si on a sélectionné des étudiants ou pas
+    const total = this.active_rows!.length;
+    const selected_students = this.selected_students;
+    const selected = selected_students.length;
+
+    // Ajoute les checkbox et boutons (header)
     cols.unshift(
-      <TableCell
-        key={"editdelete"}
-      />,
-      <TableCell
-        key={"checkbox"}
-      />
+      <TableCell key={"editdelete"} />,
+      <TableCell key={"checkbox"}>
+        <Checkbox
+          indeterminate={selected > 0 && selected !== total}
+          checked={selected > 0 && selected === total}
+          onChange={(_: any, checked: boolean) => checked ? this.checkAll() : this.uncheckAll()}
+          value="checked_student"
+        />
+      </TableCell>
     );
 
     return (
@@ -304,9 +463,32 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
           onValidate={this.handleDeleteConfirm}
         />
 
+        {this.modalSelectEmail()}
+        {this.modalSendEmail()}
+
+        {this.selectedInformations()}
+
+        <Marger size=".5rem" />
+
         <Paper className={classes.root}>
+          {/* Search input */}
+          <div className={classes.table_search_filter}>
+            <div className={classes.table_search}>
+              <TextField
+                className={classes.input_field}
+                label="Rechercher"
+                margin="normal"
+                variant="outlined"
+                onChange={this.searchChange}
+              />
+            </div>
+
+            {/* Bouton modal options de filters */}
+            <StudentFindOptions onChange={this.handleFilterChange} />
+          </div>
+
           <div className={classes.tableWrapper}>
-            <Table stickyHeader aria-label="sticky table">
+            <Table stickyHeader>
               <TableHead>
                 <TableRow>
                   {cols}
@@ -320,7 +502,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={this.state.active_rows!.length}
+            count={this.active_rows!.length}
             rowsPerPage={this.state.rows_count}
             page={this.state.page}
             onChangePage={this.handleChangePage}
@@ -329,6 +511,9 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
           />
         </Paper>
+
+        <Marger size="3rem" />
+        
       </DashboardContainer>
     );
   }
@@ -349,13 +534,4 @@ const columns: Column[] = [
   { id: 'graduated', label: 'Diplômé', minWidth: 50, format: (v: boolean) => v ? "Oui" : "Non" },
   { id: 'email', label: 'E-mail', minWidth: 230 },
 ];
-
-interface Data {
-  id: number;
-  last_name: string;
-  first_name: string;
-  year_in: string;
-  graduated: boolean;
-  email: string;
-} 
 

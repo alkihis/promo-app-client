@@ -6,7 +6,6 @@ import { Route, RouteComponentProps, Switch, useLocation, useRouteMatch } from '
 import { Location } from 'history';
 import TeacherStudents from '../TeacherStudents/TeacherStudents';
 import AddStudent from '../AddStudent/AddStudent';
-import SendMail from '../SendMail/SendMail';
 
 import LogoutIcon from '@material-ui/icons/Block';
 import StudentIcon from '@material-ui/icons/People';
@@ -19,7 +18,6 @@ import { ClassicModal } from '../../../helpers';
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
   "Étudiants": "student/all",
-  "Mail": "mail",
   "Ajout d'étudiant": "student/add",
   "Statistiques": "stats"
 };
@@ -38,11 +36,6 @@ const TeacherPage: React.FC = () => {
         text: "Étudiants",
         selected: location.pathname === base + ROUTES_AVAILABLE['Étudiants'],
         linkTo: base + "student/all"
-      }, {
-        icon: MailingIcon,
-        text: "Mail",
-        selected: location.pathname === base + ROUTES_AVAILABLE['Mail'],
-        linkTo: base + "mail"
       }, {
         icon: AddStudentIcon,
         text: "Ajout d'étudiant",
@@ -98,17 +91,15 @@ const TeacherPage: React.FC = () => {
         {/** 
           Show students 
           All data for student, selector for student (sort information, deletion...)
+          And mail send
         */}
         <Route path={`${match.path}student/all`} component={TeacherStudents} />
 
         {/** Add a new student (enter basic informations about him/her). */}
         <Route path={`${match.path}student/add`} component={AddStudent} />
 
-        {/** Show teacher mailing page: Send group mail for students */}
-        <Route path={`${match.path}mail`} component={SendMail} /> 
-
         {/** Statistics */}
-        <Route path={`${match.path}stats`} component={SendMail} /> 
+        <Route path={`${match.path}stats`} component={TeacherStudents} /> 
 
         {/* Home page. */}
         <Route path={`${match.path}`} exact component={TeacherHomePage} />

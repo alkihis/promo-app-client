@@ -1,9 +1,10 @@
 import APIHELPER, { APIError } from "./APIHelper";
 import React from 'react';
-import { Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Divider } from "@material-ui/core";
+import { Grid, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Divider, Slide } from "@material-ui/core";
 import { toast } from "./components/shared/Toaster/Toaster";
 import { Student } from "./interfaces";
 import SETTINGS, { LoggedLevel } from "./Settings";
+import { TransitionProps } from "@material-ui/core/transitions/transition";
 
 export function setPageTitle(title?: string, absolute = false) {
   if (!absolute)
@@ -229,6 +230,10 @@ export const ClassicModal: React.FC<{
   );
 };
 
+export const TransitionModal = React.forwardRef<unknown, TransitionProps>(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 export function DividerMargin(props: { size: number | string }) {
   return <Divider style={{ marginTop: props.size, marginBottom: props.size }} />;
 }
@@ -313,13 +318,14 @@ export function studentSorter(students: Student[], filters: StudentFilters) {
     }
 
     if (filters.inactive_since !== undefined) {
+      // Ne garde que ceux qui sont inactifs depuis une date
       const from_months = filters.inactive_since;
       const inactive_date = new Date(s.last_update);
       const now = new Date();
 
       now.setMonth(now.getMonth() - from_months);
 
-      if (now.getTime() > inactive_date.getTime()) {
+      if (now.getTime() < inactive_date.getTime()) {
         return false;
       }
     }
