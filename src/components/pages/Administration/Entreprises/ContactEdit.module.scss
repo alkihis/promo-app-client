@@ -1,0 +1,33 @@
+.lists_item > * {
+  border: 1px #d2d2d2 solid;
+  border-top: none;
+}
+
+.lists_item > *:first-child {
+  border-top: 1px #d2d2d2 solid;
+  border: 1px #d2d2d2 solid;
+}
+
+.icon_merge {
+  margin-left: -8px !important;
+  transform: rotate(180deg);
+}
+
+.content_selection, .merge_buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.merge_buttons {
+  flex-direction: row;
+}
+
+.content_selection > * {
+  margin-bottom: .5rem !important;
+}
+
+.in_load {
+  filter: brightness(0.4);
+}

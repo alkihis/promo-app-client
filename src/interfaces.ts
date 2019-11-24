@@ -19,7 +19,7 @@ export type PartialStudent = {
 } | Student;
 
 export const FormationLevels = {
-  license: "Licence",
+  licence: "Licence",
   master: "Master",
   phd: "Doctorat",
   other: "Autre",
@@ -64,6 +64,11 @@ export const Domains: { [domain: string]: string } = {
   other: "Autre",
 };
 export type Domain = string;
+export interface FullDomain {
+  domain: string;
+  name: string;
+  id: number;
+}
 
 export const JobTypes = {
   cdi: "CDI", 

@@ -16,8 +16,12 @@ code {
   text-align: center;
 }
 
-.button-green {
+.button-green:not(:disabled) {
   color: rgb(51, 117, 51) !important;
+}
+
+.button-blue:not(:disabled) {
+  color: rgb(42, 109, 153) !important;
 }
 
 .link {

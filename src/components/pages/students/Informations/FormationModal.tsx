@@ -8,12 +8,13 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
 import { toast } from '../../../shared/Toaster/Toaster';
+import Similarity from 'string-similarity';
 
 // TODO améliorer la reconnaissance des mots avec Lenvenstein
 
 type FMProps = {
   onClose?: () => void;
-  onConfirm?: (form?: Formation) => void;
+  onConfirm?: (form: Formation) => void;
   open?: boolean;
   base?: Formation;
   modify?: boolean;
@@ -43,7 +44,7 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
 
     this.state = {
       branch: "",
-      level: "license",
+      level: "licence",
       location: "",
       in_confirm: false,
       available: undefined,
@@ -72,7 +73,7 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
       // Reset
       this.setState({
         branch: '',
-        level: 'license',
+        level: 'licence',
         location: "",
         selected: undefined,
         in_confirm: false,
@@ -88,14 +89,26 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
   buildFromFormationBase() {
     if (this.props.base) {
       const b = this.props.base;
-      this.setState({
-        selected: b,
-        manual_formation: false
-      });
+
+      if (this.props.modify) {
+        this.setState({
+          selected: undefined,
+          manual_formation: true,
+          branch: b.branch,
+          level: b.level,
+          location: b.location,
+        });
+      }
+      else {
+        this.setState({
+          selected: b,
+          manual_formation: false
+        });
+      }
     }
   }
 
-  makeConfirm = () => {
+  makeConfirm = async () => {
     this.setState({
       in_confirm: true
     });
@@ -118,12 +131,30 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
     }
 
     // TODO gérer modification et pas création
-    const cps: Formation = {
+    let cps: Formation = {
       id: 0,
       branch: this.state.branch!,
       location: this.state.location!,
       level: this.state.level!
     };
+
+    if (this.props.modify) {
+      cps.id = this.props.base!.id;
+
+      try {
+        cps = await APIHELPER.request('formation/modify', {
+          method: 'POST',
+          parameters: cps
+        });
+      } catch (e) {
+        toast("Impossible de mettre à jour la formation.", "error");
+
+        this.setState({
+          in_confirm: false
+        });
+        return;
+      }
+    }
 
     this.props.onConfirm?.(cps);
     if (!this.state.available?.find(e => e.id === cps.id)) {
@@ -146,18 +177,16 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
     });
   };
 
-  handleBranchChange = (evt: any) => {
-    const name = evt?.target?.value;
-    
+  handleBranchChange = (_: React.ChangeEvent<{}>, value: string | null) => {    
     this.setState({
-      branch: name,
+      branch: value ?? "",
       selected: undefined
     });
   };
 
-  handleLocationChange = (evt: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  handleLocationChange = (_: React.ChangeEvent<{}>, value: string | null) => {
     this.setState({
-      location: evt.target.value
+      location: value ?? ""
     });
   };
 
@@ -180,9 +209,25 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
       selected: new_value,
       branch: "",
       location: "",
-      level: "license",
+      level: "licence",
     });
   };
+
+  getNames() {
+    if (!this.state.available) {
+      return [];
+    }
+
+    return this.state.available.map(f => f.branch);
+  }
+
+  getLocations() {
+    if (!this.state.available) {
+      return [];
+    }
+
+    return this.state.available.map(f => f.location);
+  }
 
   render() {
     const selected_value = this.state.selected;
@@ -220,38 +265,39 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
           <div className={classes.flex_column_container}>
             <Marger size=".3rem" />
 
-            <FormationAutoSelect 
-              options={this.state.available}
-              value={selected_value ?? null}
-              onChange={this.handleAutoFormationChange}
-              disabled={this.state.manual_formation}
-            />
+            {!this.props.modify && <>
+              <FormationAutoSelect 
+                options={this.state.available}
+                value={selected_value ?? null}
+                onChange={this.handleAutoFormationChange}
+                disabled={this.state.manual_formation}
+              />
 
-            <Marger size=".5rem" />
+              <Marger size=".5rem" />
 
-            <FormControlLabel
-              control={<Checkbox checked={this.state.manual_formation} onChange={this.handleManualFormationChange} />}
-              label="Ma formation n'est pas dans la liste"
-            />
+              <FormControlLabel
+                control={<Checkbox checked={this.state.manual_formation} onChange={this.handleManualFormationChange} />}
+                label="Ma formation n'est pas dans la liste"
+              />
 
-            <DividerMargin size="1rem" />
+              <DividerMargin size="1rem" />    
+            </>}
 
-            <TextField
+            <NameBranchAutoSelect 
               value={this.state.branch}
               onChange={this.handleBranchChange}
-              label="Nom complet (branche incluse)"
               disabled={!this.state.manual_formation}
-              helperText="N'incluez pas le niveau (licence, master...) dans le nom de la filière."
+              options={this.props.modify ? [] : this.getNames()}
             />
 
             <Marger size=".5rem" />
 
-            {/* Auto select de lieu avec API serait cool ! */}
-            <TextField
+            {/* Auto select de lieu */}
+            <LocationAutoSelect
               value={this.state.location}
               onChange={this.handleLocationChange}
-              label="Lieu (Université)"
               disabled={!this.state.manual_formation}
+              options={this.props.modify ? [] : this.getLocations()}
             />
 
             <Marger size=".5rem" />
@@ -346,6 +392,106 @@ function FormationAutoSelect(props: {
           label="Rechercher une formation..."
           fullWidth
           variant="outlined"
+        />
+      )}
+    />
+  )
+}
+
+function NameBranchAutoSelect(props: {
+  onChange: (event: React.ChangeEvent<{}>, value: string | null) => void, 
+  value: string | null,
+  options?: string[],
+  disabled?: boolean,
+}) {
+  const [open, setOpen] = React.useState(false);
+  const loading = open && !props.options;
+
+  const options = props.options;
+  
+  return (
+    <Autocomplete
+      open={open}
+      onOpen={() => {
+        setOpen(true);
+      }}
+      onClose={() => {
+        setOpen(false);
+      }}
+      options={options}
+      loading={loading}
+      loadingText={"Chargement..."}
+      filterOptions={(options: string[]) => {
+        // Bug: state.inputValue does not work when freeSolo=true
+        const input_value = (document.querySelector('[data-formation-select-id]') as HTMLInputElement).value;
+        
+        return options
+          .map(o => [o, Similarity.compareTwoStrings(input_value, o)] as [string, number])
+          .sort((a, b) => b[1] - a[1])
+          .map(o => o[0]);
+      }}
+      onInputChange={props.onChange}
+      freeSolo
+      value={props.value}
+      autoComplete
+      disabled={props.disabled}
+      renderInput={params => (
+        <TextField
+          {...params}
+          inputProps={{"data-formation-select-id": "input-formation-autoselect", ...params.inputProps}}
+          label="Nom complet (branche incluse)"
+          helperText="N'incluez pas le niveau (licence, master...) dans le nom de la filière."
+          fullWidth
+        />
+      )}
+    />
+  )
+}
+
+function LocationAutoSelect(props: {
+  onChange: (event: React.ChangeEvent<{}>, value: string | null) => void, 
+  value: string | null,
+  options?: string[],
+  disabled?: boolean,
+}) {
+  const [open, setOpen] = React.useState(false);
+  const loading = open && !props.options;
+
+  const options = props.options;
+  
+  return (
+    <Autocomplete
+      open={open}
+      onOpen={() => {
+        setOpen(true);
+      }}
+      onClose={() => {
+        setOpen(false);
+      }}
+      options={options}
+      loading={loading}
+      loadingText={"Chargement..."}
+      noOptionsText={"Aucune université à suggérer"}
+      filterOptions={(options: string[]) => {
+        // Bug: state.inputValue does not work when freeSolo=true
+        const input_value = (document.querySelector('[data-location-select-id]') as HTMLInputElement).value;
+        
+        return options
+          .map(o => [o, Similarity.compareTwoStrings(input_value, o)] as [string, number])
+          .sort((a, b) => b[1] - a[1])
+          .map(o => o[0]);
+      }}
+      onInputChange={props.onChange}
+      freeSolo
+      value={props.value}
+      autoComplete
+      disabled={props.disabled}
+      renderInput={params => (
+        <TextField
+          {...params}
+          inputProps={{"data-location-select-id": "input-town-autoselect", ...params.inputProps}}
+          label="Lieu (université)"
+          fullWidth
         />
       )}
     />

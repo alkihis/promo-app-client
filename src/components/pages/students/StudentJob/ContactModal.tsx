@@ -13,9 +13,11 @@ type CMProps = {
   open?: boolean;
   company: Company;
   base?: Contact;
+  modify?: boolean;
 }
 
 type CMState = {
+  in_load: boolean;
   available?: Contact[];
   selected?: Contact;
   name?: string;
@@ -29,7 +31,8 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
 
     this.state = {
       name: "",
-      email: ""
+      email: "",
+      in_load: false
     };
   }
 
@@ -59,11 +62,21 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
   buildFromContactBase() {
     if (this.props.base) {
       const b = this.props.base;
-      this.setState({
-        selected: b,
-        name: b.name,
-        email: b.email
-      });
+
+      if (this.props.modify) {
+        this.setState({
+          selected: undefined,
+          name: b.name,
+          email: b.email
+        });
+      }
+      else {
+        this.setState({
+          selected: b,
+          name: b.name,
+          email: b.email
+        });
+      }
     }
   }
 
@@ -91,9 +104,13 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       });
   }
 
-  makeConfirm = (evt: React.FormEvent<HTMLFormElement>) => {
+  makeConfirm = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     evt.stopPropagation();
+
+    this.setState({
+      in_load: true
+    });
 
     let is_same = false;
     if (this.state.selected) {
@@ -103,7 +120,11 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
     } 
 
     if (!this.state.name || !this.state.email) {
-      if (!this.state.name && !this.state.email) {
+      this.setState({
+        in_load: false
+      });
+
+      if (!this.state.name && !this.state.email && !this.props.modify) {
         this.props.onConfirm?.();
         return;
       }
@@ -111,12 +132,38 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       return;
     }
 
-    const contact: Contact = {
+    let contact: Contact = {
       id: is_same ? this.state.selected!.id : 0,
       name: this.state.name!,
       email: this.state.email!,
       linked_to: this.props.company.id
     };
+
+    if (this.props.modify) {
+      contact.id = this.props.base!.id;
+
+      try {
+        contact = await APIHELPER.request('contact/modify', {
+          method: 'POST',
+          parameters: {
+            id: contact.id,
+            name: contact.name,
+            mail: contact.email
+          }
+        });
+      } catch (e) {
+        notifyError(e);
+        this.setState({
+          in_load: false
+        });
+
+        return;
+      }
+    }
+
+    this.setState({
+      in_load: false
+    });
 
     this.props.onConfirm?.(contact);
   };
@@ -161,19 +208,33 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
 
   render() {
     return (
-      <Dialog open={this.props.open!} onClose={this.props.onClose}>
+      <Dialog 
+        open={this.props.open!} 
+        onClose={this.props.onClose}
+        className={this.state.in_load ? classes.in_load : ""}
+      >
         <DialogTitle>Contact</DialogTitle>
         <form onSubmit={this.makeConfirm}>
           <DialogContent style={{ minWidth: '10vw', maxWidth: '550px' }}>
             <DialogContentText style={{ marginBottom: '1.5rem', marginTop: '-8px' }}>
               Votre contact dans l'entreprise {this.props.company?.name}.
             </DialogContentText>
-            <ContactEmailSelect 
+            {!this.props.modify && <ContactEmailSelect 
               value={this.state.email}
               onChange={this.handleEmailChange}
               onInputChange={this.handleEmailChange}
               options={this.state.available?.map(e => e.email)}
-            />
+            />}
+
+            {!!this.props.modify && <TextField 
+              value={this.state.email}
+              onChange={(evt: any) => this.setState({ email: evt.target.value })}
+              label="Adresse e-mail"
+              required
+              fullWidth
+              variant="outlined"
+              type="mail"
+            />}
 
             <Marger size=".5rem" />
 

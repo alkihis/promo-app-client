@@ -11,15 +11,25 @@ import LogoutIcon from '@material-ui/icons/Block';
 import StudentIcon from '@material-ui/icons/People';
 import AddStudentIcon from '@material-ui/icons/PersonAdd';
 import StatsIcon from '@material-ui/icons/InsertChart';
-import MailingIcon from '@material-ui/icons/Mail';
+import WorkIcon from '@material-ui/icons/Work';
+import FormationIcon from '@material-ui/icons/AccountBalance';
 import ResumeIcon from '@material-ui/icons/Public';
+import DomainIcon from '@material-ui/icons/Domain';
 import { ClassicModal } from '../../../helpers';
+import ModifyCompany from '../Administration/Entreprises/Entreprises';
+import ModifyContacts from '../Administration/Entreprises/ContactEdit';
+import ModifyFormation from '../Administration/Formations/Formations';
+import ModifyDomains from '../Administration/Domaines/Domaines';
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
   "Étudiants": "student/all",
   "Ajout d'étudiant": "student/add",
-  "Statistiques": "stats"
+  "Statistiques": "stats",
+  "Entreprises": "companies",
+  "Contacts": "contact/",
+  "Formations": "formations",
+  "Domaines": "domains",
 };
 
 // Teacher router
@@ -49,6 +59,23 @@ const TeacherPage: React.FC = () => {
       }]
     }, {
       items: [{
+        icon: WorkIcon,
+        text: "Entreprises",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Entreprises'],
+        linkTo: base + "companies"
+      }, {
+        icon: FormationIcon,
+        text: "Formations",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Formations'],
+        linkTo: base + "formations"
+      }, {
+        icon: DomainIcon,
+        text: "Domaines",
+        selected: location.pathname === base + ROUTES_AVAILABLE['Domaines'],
+        linkTo: base + "domains"
+      },]
+    }, {
+      items: [{
         icon: LogoutIcon,
         text: "Déconnexion",
         onClick: handleOpen
@@ -73,7 +100,11 @@ const TeacherPage: React.FC = () => {
   const drawer_items = makeDrawerSections(location, match.path);
 
   const current_location = location.pathname.split(match.path).pop() ?? "";
-  const current_title = Object.entries(ROUTES_AVAILABLE).find(e => e[1] === current_location) ?? ["Page non trouvée"];
+
+  const current_title = 
+    Object.entries(ROUTES_AVAILABLE).find(e => e[1] === current_location) ?? 
+    Object.entries(ROUTES_AVAILABLE).find(e => e[1] && current_location.startsWith(e[1])) ??
+    ["Page non trouvée"];
 
   return (
     <Dashboard drawer={<DashboardDrawer sections={drawer_items} />} title={current_title[0]}>
@@ -100,6 +131,18 @@ const TeacherPage: React.FC = () => {
 
         {/** Statistics */}
         <Route path={`${match.path}stats`} component={TeacherStudents} /> 
+
+        {/** Entreprises */}
+        <Route path={`${match.path}companies`} component={ModifyCompany} /> 
+
+        {/** Formations */}
+        <Route path={`${match.path}formations`} component={ModifyFormation} /> 
+
+        {/** Domaines */}
+        <Route path={`${match.path}domains`} component={ModifyDomains} /> 
+
+        {/** Contacts de l'entreprise */}
+        <Route path={`${match.path}contact/:id`} component={ModifyContacts} /> 
 
         {/* Home page. */}
         <Route path={`${match.path}`} exact component={TeacherHomePage} />
