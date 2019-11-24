@@ -1,6 +1,7 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import classes from './Home.module.scss';
-import { AppBar, Toolbar, IconButton, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions, Button, ListItem, List, DialogContentText } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions, Button, ListItem, List, DialogContentText, ListItemAvatar, Avatar, ListItemText, Divider } from '@material-ui/core';
 import SETTINGS from '../../../Settings';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Dashboard from '@material-ui/icons/Dashboard';
@@ -9,7 +10,8 @@ import { DividerMargin, Marger, notifyError, BigPreloader } from '../../../helpe
 import APIHELPER from '../../../APIHelper';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import Leaflet from 'leaflet';
-import { Contact, FullContact } from '../../../interfaces';
+import { FullContact } from '../../../interfaces';
+import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
 const HomePage: React.FC = () => {
   return (
@@ -119,30 +121,6 @@ function CompanyMap() {
   const [companies, setCompanies] = React.useState<MappedCompany[] | undefined | number>(undefined);
   const [modalOpen, setModalOpen] = React.useState<MappedCompany | false>(false);
 
-  function generatePopupElement(company: MappedCompany) {
-    const el = document.createElement('div');
-    const company_name = document.createElement('strong');
-    company_name.textContent = company.town;
-    el.appendChild(company_name);
-
-    el.appendChild(document.createElement('br'));
-
-    const informations = document.createElement('p');
-    informations.textContent = `${company.count} emploi${company.count > 1 ? "s" : ""} ici.`;
-    el.appendChild(informations);
-
-    if (SETTINGS.logged) {
-      const more = document.createElement('a');
-      more.className = "link-blue";
-      more.href = "#!";
-      more.textContent = "Voir les contacts disponibles ici";
-      more.onclick = () => setModalOpen(company);
-      el.appendChild(more);
-    }
-
-    return el;
-  }
-
   React.useEffect(() => {
     setTimeout(() => {
       const wait_prom = SETTINGS.login_promise ? SETTINGS.login_promise : Promise.resolve();
@@ -158,27 +136,6 @@ function CompanyMap() {
     }, 15);
   }, []);
 
-  React.useEffect(() => {
-    if (companies && typeof companies === 'object') {
-      // Companies is MappedCompany[]
-      const default_view: Leaflet.LatLngExpression = companies.length ? [Number(companies[0].lat), Number(companies[0].lng)] : [51.505, -0.09];
-
-      const my_map = Leaflet.map('company-map').setView(default_view, 8);
-
-      Leaflet.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; Wikipedia Maps | <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(my_map);
-
-      for (const company of companies) {
-        Leaflet
-          .marker([Number(company.lat), Number(company.lng)])
-          .addTo(my_map)
-          .bindPopup(generatePopupElement(company));
-      }
-    }
-  }, [companies])
-
   if (companies === undefined) {
     return <></>;
   }
@@ -186,10 +143,40 @@ function CompanyMap() {
     return <EmbeddedError error={companies} />;
   }
 
+  // Companies is MappedCompany[]
+  const default_view: Leaflet.LatLngExpression = companies.length ? 
+    [Number(companies[0].lat), Number(companies[0].lng)] : 
+    [51.505, -0.09];
+
   return (
     <>
       {modalOpen && <ContactsOf company={modalOpen} onClose={() => setModalOpen(false)} />}
-      <div id="company-map" style={{ height: '40vh' }} />
+
+      <Map center={default_view} zoom={8} style={{ height: '40vh' }}>
+        <TileLayer
+          url="https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"
+          attribution="&copy; Wikipedia Maps | <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+        />
+
+        {companies.map(c => <Marker key={c.town} position={[Number(c.lat), Number(c.lng)]}>
+          <Popup>
+            <strong>{c.town}</strong>
+            <br />
+
+            <p>
+              {c.count} emploi{c.count > 1 ? "s" : ""} ici.
+            </p>
+
+            {SETTINGS.logged ? <a 
+              href="#!" 
+              className="link-blue" 
+              onClick={() => setModalOpen(c)}
+            >
+              Voir les contacts disponibles ici
+            </a> : ""}
+          </Popup>
+        </Marker>)}
+      </Map>
     </>
   );
 }
@@ -205,7 +192,7 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
     })
       .then(setContacts)
       .catch(notifyError)
-  }, []);
+  }, [props]);
 
   if (!contacts) {
     return (
@@ -218,7 +205,7 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
   }
   
   return (
-    <Dialog open fullWidth onClose={props.onClose}>
+    <Dialog open scroll="body" fullWidth onClose={props.onClose}>
       <DialogTitle>Contacts à {props.company.town.split(',')[0]}</DialogTitle>
 
       <DialogContent>
@@ -227,12 +214,35 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
         </div>}
 
         {!!contacts.length && <>
-          <DialogContentText>{contacts.length} contact{contacts.length > 1 ? "s" : ""} disponible.</DialogContentText>
+          <DialogContentText style={{ marginBottom: 0 }}>
+            {contacts.length} contact{contacts.length > 1 ? "s" : ""} disponible{contacts.length > 1 ? "s" : ""}.
+          </DialogContentText>
 
           <List>
-            {contacts.map(c => <ListItem key={c.id}>
-              {c.name} {c.email} dans l'entreprise {c.linked_to.name}
-            </ListItem>)}
+            {contacts.map((c, index) => <React.Fragment key={c.id}>
+              <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar alt={c.name}>{c.name.slice(0, 1)}</Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={c.name}
+                  secondary={
+                    <>
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        className={classes.inline}
+                        color="textPrimary"
+                      >
+                        {c.email}
+                      </Typography>
+                      {" — "}{c.linked_to.name}
+                    </>
+                  }
+                />
+              </ListItem>
+              {index !== contacts.length - 1 && <Divider variant="inset" component="li" />}
+            </React.Fragment>)}
           </List>
         </>}
       </DialogContent>
