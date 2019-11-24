@@ -1,11 +1,15 @@
 import React from 'react';
 import classes from './Home.module.scss';
-import { AppBar, Toolbar, IconButton, Typography, Container } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions, Button, ListItem, List, DialogContentText } from '@material-ui/core';
 import SETTINGS from '../../../Settings';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Dashboard from '@material-ui/icons/Dashboard';
 import { Link } from 'react-router-dom';
-import { DividerMargin, Marger } from '../../../helpers';
+import { DividerMargin, Marger, notifyError, BigPreloader } from '../../../helpers';
+import APIHELPER from '../../../APIHelper';
+import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
+import Leaflet from 'leaflet';
+import { Contact, FullContact } from '../../../interfaces';
 
 const HomePage: React.FC = () => {
   return (
@@ -71,6 +75,10 @@ const HomePage: React.FC = () => {
         </Typography>
         
         <DividerMargin size="1rem" />
+
+        <CompanyMap />
+
+        <DividerMargin size="1rem" />
         
         <a href="https://www.bioinfo-lyon.fr/" target="_blank" rel="noopener noreferrer">
           <img src="/assets/bio-info.png" className={classes.mainlogo} alt="Logo master" />
@@ -99,3 +107,142 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+interface MappedCompany {
+  lat: string;
+  lng: string;
+  count: number;
+  town: string;
+}
+
+function CompanyMap() {
+  const [companies, setCompanies] = React.useState<MappedCompany[] | undefined | number>(undefined);
+  const [modalOpen, setModalOpen] = React.useState<MappedCompany | false>(false);
+
+  function generatePopupElement(company: MappedCompany) {
+    const el = document.createElement('div');
+    const company_name = document.createElement('strong');
+    company_name.textContent = company.town;
+    el.appendChild(company_name);
+
+    el.appendChild(document.createElement('br'));
+
+    const informations = document.createElement('p');
+    informations.textContent = `${company.count} emploi${company.count > 1 ? "s" : ""} ici.`;
+    el.appendChild(informations);
+
+    if (SETTINGS.logged) {
+      const more = document.createElement('a');
+      more.className = "link-blue";
+      more.href = "#!";
+      more.textContent = "Voir les contacts disponibles ici";
+      more.onclick = () => setModalOpen(company);
+      el.appendChild(more);
+    }
+
+    return el;
+  }
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      const wait_prom = SETTINGS.login_promise ? SETTINGS.login_promise : Promise.resolve();
+  
+      wait_prom
+        .then(() => APIHELPER.request('company/map'))
+        .then(setCompanies)
+        .catch(err => {
+          if (Array.isArray(err) && APIHELPER.isApiError(err[1])) {
+            setCompanies(err[1].code);
+          }
+        })
+    }, 15);
+  }, []);
+
+  React.useEffect(() => {
+    if (companies && typeof companies === 'object') {
+      // Companies is MappedCompany[]
+      const default_view: Leaflet.LatLngExpression = companies.length ? [Number(companies[0].lat), Number(companies[0].lng)] : [51.505, -0.09];
+
+      const my_map = Leaflet.map('company-map').setView(default_view, 8);
+
+      Leaflet.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; Wikipedia Maps | <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(my_map);
+
+      for (const company of companies) {
+        Leaflet
+          .marker([Number(company.lat), Number(company.lng)])
+          .addTo(my_map)
+          .bindPopup(generatePopupElement(company));
+      }
+    }
+  }, [companies])
+
+  if (companies === undefined) {
+    return <></>;
+  }
+  else if (typeof companies === 'number') {
+    return <EmbeddedError error={companies} />;
+  }
+
+  return (
+    <>
+      {modalOpen && <ContactsOf company={modalOpen} onClose={() => setModalOpen(false)} />}
+      <div id="company-map" style={{ height: '40vh' }} />
+    </>
+  );
+}
+
+function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
+  const [contacts, setContacts] = React.useState<FullContact[] | undefined>(undefined);
+
+  React.useEffect(() => {
+    APIHELPER.request('contact/in', { 
+      parameters: { 
+        town: props.company.town
+      } 
+    })
+      .then(setContacts)
+      .catch(notifyError)
+  }, []);
+
+  if (!contacts) {
+    return (
+      <Dialog open fullWidth onClose={props.onClose}>
+        <DialogContent>
+          <BigPreloader style={{ marginTop: '10px', marginBottom: '25px' }} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  
+  return (
+    <Dialog open fullWidth onClose={props.onClose}>
+      <DialogTitle>Contacts à {props.company.town.split(',')[0]}</DialogTitle>
+
+      <DialogContent>
+        {contacts.length === 0 && <div>
+          <DialogContentText>Aucun contact n'est disponible à cet emplacement.</DialogContentText>
+        </div>}
+
+        {!!contacts.length && <>
+          <DialogContentText>{contacts.length} contact{contacts.length > 1 ? "s" : ""} disponible.</DialogContentText>
+
+          <List>
+            {contacts.map(c => <ListItem key={c.id}>
+              {c.name} {c.email} dans l'entreprise {c.linked_to.name}
+            </ListItem>)}
+          </List>
+        </>}
+      </DialogContent>
+
+      <DialogActions>
+        <Button color="primary" onClick={props.onClose}>
+          Fermer
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+

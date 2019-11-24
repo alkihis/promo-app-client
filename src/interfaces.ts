@@ -92,6 +92,12 @@ export interface Contact {
   email: string;
   linked_to: number;
 }
+export interface FullContact {
+  id: number;
+  name: string;
+  email: string;
+  linked_to: Company;
+}
 
 export interface Company {
   id: number;

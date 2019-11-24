@@ -36,7 +36,7 @@ code {
   color: #4385ff;
   text-decoration: none;
 }
-.link-blue:hover {
+.link-blue:hover:not(.no-underline) {
   text-decoration: underline;
   color: #196aff;
 }
