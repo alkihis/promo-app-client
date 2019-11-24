@@ -15,11 +15,12 @@ import WorkIcon from '@material-ui/icons/Work';
 import FormationIcon from '@material-ui/icons/AccountBalance';
 import ResumeIcon from '@material-ui/icons/Public';
 import DomainIcon from '@material-ui/icons/Domain';
-import { ClassicModal } from '../../../helpers';
+import { ClassicModal, notifyError, BigPreloader } from '../../../helpers';
 import ModifyCompany from '../Administration/Entreprises/Entreprises';
 import ModifyContacts from '../Administration/Entreprises/ContactEdit';
 import ModifyFormation from '../Administration/Formations/Formations';
 import ModifyDomains from '../Administration/Domaines/Domaines';
+import APIHELPER from '../../../APIHelper';
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
@@ -156,16 +157,34 @@ const TeacherPage: React.FC = () => {
 
 export default TeacherPage;
 
-class TeacherHomePage extends React.Component {
-  render() {
-    return (
-      <div>
-        Hello, i'm the teacher dashboard {String(SETTINGS.logged)}
-      </div>
-    );
-  }
+
+//// HOME Page
+interface HomeStats {
+
 }
 
+const TeacherHomePage: React.FC = () => {
+  const [stats, setStats] = React.useState<HomeStats | undefined>(undefined);
+
+  React.useEffect(() => {
+    APIHELPER.request('teacher/home_stats')
+      .then(setStats)
+      .catch(notifyError);
+  }, []);
+
+  if (!stats) {
+    return <BigPreloader style={{ marginTop: '2rem' }} />;
+  }
+
+  return (
+    <div>
+      Hello, i'm the teacher dashboard {String(SETTINGS.logged)}
+    </div>
+  );
+};
+
+
+//// NOT FOUND Page
 const TeacherNotFound: React.FC<RouteComponentProps> = props => {
   return (
     <div>
