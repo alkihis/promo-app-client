@@ -16,6 +16,10 @@ code {
   text-align: center;
 }
 
+.bold {
+  font-weight: 600 !important;
+}
+
 .button-green:not(:disabled) {
   color: rgb(51, 117, 51) !important;
 }

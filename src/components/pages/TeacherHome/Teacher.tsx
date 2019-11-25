@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './Teacher.module.scss';
-import Dashboard, { DrawerSection, DashboardDrawer } from '../../shared/Dashboard/Dashboard';
+import Dashboard, { DrawerSection, DashboardDrawer, DashboardContainer } from '../../shared/Dashboard/Dashboard';
 import SETTINGS from '../../../Settings';
 import { Route, RouteComponentProps, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import { Location } from 'history';
@@ -15,12 +15,13 @@ import WorkIcon from '@material-ui/icons/Work';
 import FormationIcon from '@material-ui/icons/AccountBalance';
 import ResumeIcon from '@material-ui/icons/Public';
 import DomainIcon from '@material-ui/icons/Domain';
-import { ClassicModal, notifyError, BigPreloader } from '../../../helpers';
+import { ClassicModal, notifyError, BigPreloader, Marger, DividerMargin } from '../../../helpers';
 import ModifyCompany from '../Administration/Entreprises/Entreprises';
 import ModifyContacts from '../Administration/Entreprises/ContactEdit';
 import ModifyFormation from '../Administration/Formations/Formations';
 import ModifyDomains from '../Administration/Domaines/Domaines';
 import APIHELPER from '../../../APIHelper';
+import { Typography } from '@material-ui/core';
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
@@ -160,7 +161,12 @@ export default TeacherPage;
 
 //// HOME Page
 interface HomeStats {
-
+  companies_with_work: number;
+  graduated: number;
+  in_formation: number;
+  students: number;
+  students_currently_working: number;
+  thesis: number;
 }
 
 const TeacherHomePage: React.FC = () => {
@@ -172,14 +178,46 @@ const TeacherHomePage: React.FC = () => {
       .catch(notifyError);
   }, []);
 
+  function show(n: number) {
+    return n === 0 ? "Aucun" : String(n);
+  }
+
+  function s(n: number) {
+    return n > 1 ? "s" : "";
+  }
+
+  function ontOrA(n: number) {
+    return n > 1 ? "ont" : "a";
+  }
+
   if (!stats) {
     return <BigPreloader style={{ marginTop: '2rem' }} />;
   }
 
   return (
-    <div>
-      Hello, i'm the teacher dashboard {String(SETTINGS.logged)}
-    </div>
+    <DashboardContainer>
+      <Typography variant="h3" gutterBottom className="bold">
+        Bienvenue.
+      </Typography>
+
+      <Typography variant="h6">
+        {show(stats.students)} étudiant{s(stats.students)} enregistrés
+      </Typography>
+
+      <Typography color="textSecondary">
+        {show(stats.in_formation)} en formation, {show(stats.graduated)} diplômé{s(stats.graduated)}.
+      </Typography>
+
+      <DividerMargin size=".7rem" />
+
+      <Typography variant="h6">
+        {show(stats.students_currently_working)} étudiant{s(stats.students_currently_working)} {ontOrA(stats.students_currently_working)} un emploi
+      </Typography>
+
+      <Typography color="textSecondary">
+        {show(stats.thesis)} en thèse, {show(stats.companies_with_work)} entreprise{s(stats.graduated)} embauchant actuellement.
+      </Typography>
+    </DashboardContainer>
   );
 };
 
