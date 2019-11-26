@@ -122,18 +122,16 @@ function CompanyMap() {
   const [modalOpen, setModalOpen] = React.useState<MappedCompany | false>(false);
 
   React.useEffect(() => {
-    setTimeout(() => {
-      const wait_prom = SETTINGS.login_promise ? SETTINGS.login_promise : Promise.resolve();
+    const wait_prom = SETTINGS.login_promise ? SETTINGS.login_promise : Promise.resolve();
   
-      wait_prom
-        .then(() => APIHELPER.request('company/map'))
-        .then(setCompanies)
-        .catch(err => {
-          if (Array.isArray(err) && APIHELPER.isApiError(err[1])) {
-            setCompanies(err[1].code);
-          }
-        })
-    }, 15);
+    wait_prom
+      .then(() => APIHELPER.request('company/map'))
+      .then(setCompanies)
+      .catch(err => {
+        if (Array.isArray(err) && APIHELPER.isApiError(err[1])) {
+          setCompanies(err[1].code);
+        }
+      })
   }, []);
 
   if (companies === undefined) {

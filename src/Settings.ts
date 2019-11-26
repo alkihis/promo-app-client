@@ -40,9 +40,7 @@ class Settings {
 
       if (this._user_object !== undefined) {
         // Lance la validation de l'utilisateur
-        setTimeout(() => {
-          this.validateUser();
-        }, 5);
+        this.validateUser();
       }
     }
   }
@@ -186,14 +184,17 @@ class Settings {
 
   validateUser() {
     if (this.login_pending) {
-      return this.login_pending;
+      return this.login_promise;
     }
 
     this.login_pending = true;
+
+    const wait_prom = new Promise(resolve => setTimeout(resolve, 10)); 
+    
     return (
-      this.login_promise = Promise.all(
+      this.login_promise = wait_prom.then(() => Promise.all(
         [this.checkValidity(), this.downloadDomains()]
-      )
+      ))
     ).finally(() => { this.login_pending = false; });
   }
 

@@ -30,7 +30,7 @@ export default class LoginWrapper extends React.Component<LWProps> {
   constructor(props: LWProps) {
     super(props);
 
-    let is_logged: boolean | null = false;
+    let is_logged: boolean | null = null;
     if (SETTINGS.logged) {
       is_logged = true;
     }
@@ -45,6 +45,9 @@ export default class LoginWrapper extends React.Component<LWProps> {
         .catch(() => {
           this.setState({ logged: "error" });
         });
+    }
+    else {
+      is_logged = false;
     }
 
     this.state = {

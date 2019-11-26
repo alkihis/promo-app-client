@@ -218,7 +218,7 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
       return [];
     }
 
-    return this.state.available.map(f => f.branch);
+    return [...new Set(this.state.available.map(f => f.branch))];
   }
 
   getLocations() {
@@ -226,7 +226,7 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
       return [];
     }
 
-    return this.state.available.map(f => f.location);
+    return [...new Set(this.state.available.map(f => f.location))];
   }
 
   render() {

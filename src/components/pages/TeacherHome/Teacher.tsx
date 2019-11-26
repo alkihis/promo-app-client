@@ -22,6 +22,8 @@ import ModifyFormation from '../Administration/Formations/Formations';
 import ModifyDomains from '../Administration/Domaines/Domaines';
 import APIHELPER from '../../../APIHelper';
 import { Typography } from '@material-ui/core';
+import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
+import TeacherStats from '../Stats/Stats';
 
 const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Résumé": "",
@@ -132,7 +134,7 @@ const TeacherPage: React.FC = () => {
         <Route path={`${match.path}student/add`} component={AddStudent} />
 
         {/** Statistics */}
-        <Route path={`${match.path}stats`} component={TeacherStudents} /> 
+        <Route path={`${match.path}stats`} component={TeacherStats} /> 
 
         {/** Entreprises */}
         <Route path={`${match.path}companies`} component={ModifyCompany} /> 
@@ -215,7 +217,7 @@ const TeacherHomePage: React.FC = () => {
       </Typography>
 
       <Typography color="textSecondary">
-        {show(stats.thesis)} en thèse, {show(stats.companies_with_work)} entreprise{s(stats.graduated)} embauchant actuellement.
+        {show(stats.thesis)} en thèse, {show(stats.companies_with_work)} entreprise{s(stats.companies_with_work)} embauchant actuellement.
       </Typography>
     </DashboardContainer>
   );
@@ -224,9 +226,5 @@ const TeacherHomePage: React.FC = () => {
 
 //// NOT FOUND Page
 const TeacherNotFound: React.FC<RouteComponentProps> = props => {
-  return (
-    <div>
-      Page not found ({props.location.pathname})
-    </div>
-  );
+  return <EmbeddedError text={`Page non trouvée (${props.location.pathname})`} />;
 }
