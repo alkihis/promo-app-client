@@ -74,6 +74,8 @@ const StudentFindOptions: React.FC<{ onChange?: (filters: StudentFilters) => voi
     };
 
     props.onChange?.(filters);
+
+    // eslint-disable-next-line
   }, [graduated, yearIn, yearOut, atWork, inMaster, inactiveSince, haveNext, withThesis]);
   
   const actives_filters = getNumberOfActiveFilters();
