@@ -4,7 +4,6 @@ import APIHELPER from '../../../../APIHelper';
 import { notifyError, BigPreloader } from '../../../../helpers';
 import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
 import { ListItem, List, ListItemText, ListItemSecondaryAction, IconButton, Typography, Checkbox, Dialog, DialogContent, Button, DialogTitle, DialogActions, DialogContentText, MenuItem, Menu } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/DeleteForever';
 import classes from './Formations.module.scss';
 import { toast } from '../../../shared/Toaster/Toaster';
 import FormationModal from '../../students/Informations/FormationModal';

@@ -1,5 +1,4 @@
 import React from 'react';
-import classes from './Teacher.module.scss';
 import Dashboard, { DrawerSection, DashboardDrawer, DashboardContainer } from '../../shared/Dashboard/Dashboard';
 import SETTINGS from '../../../Settings';
 import { Route, RouteComponentProps, Switch, useLocation, useRouteMatch } from 'react-router-dom';
@@ -15,7 +14,7 @@ import WorkIcon from '@material-ui/icons/Work';
 import FormationIcon from '@material-ui/icons/AccountBalance';
 import ResumeIcon from '@material-ui/icons/Public';
 import DomainIcon from '@material-ui/icons/Domain';
-import { ClassicModal, notifyError, BigPreloader, Marger, DividerMargin } from '../../../helpers';
+import { ClassicModal, notifyError, BigPreloader, DividerMargin } from '../../../helpers';
 import ModifyCompany from '../Administration/Entreprises/Entreprises';
 import ModifyContacts from '../Administration/Entreprises/ContactEdit';
 import ModifyFormation from '../Administration/Formations/Formations';
@@ -156,7 +155,7 @@ const TeacherPage: React.FC = () => {
       </Switch>
     </Dashboard>
   );
-}
+};
 
 export default TeacherPage;
 
@@ -227,4 +226,4 @@ const TeacherHomePage: React.FC = () => {
 //// NOT FOUND Page
 const TeacherNotFound: React.FC<RouteComponentProps> = props => {
   return <EmbeddedError text={`Page non trouvée (${props.location.pathname})`} />;
-}
+};

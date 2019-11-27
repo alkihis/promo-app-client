@@ -85,13 +85,13 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
     this.setState({
       modal_delete: id
     });
-  }
+  };
 
   handleModalClose = () => {
     this.setState({
       modal_delete: false
     });
-  }
+  };
 
   renderModalDeleteJob() {
     return (
@@ -179,7 +179,7 @@ export default class StudentJob extends React.Component<SJProps, SJState> {
         </CardActions>
       </Card>
     )
-  }
+  };
 
   renderJobs() {
     // Organisation des emplois

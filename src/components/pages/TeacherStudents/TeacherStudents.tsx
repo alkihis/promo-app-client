@@ -131,7 +131,6 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     if (search_text && this.state.rows) {
       const search = new RegExp(search_text, "i");
 
-      // TODO maybe optimize ?
       // Filtre les lignes pour avoir celles qui coincident avec le champ de texte
       const active_rows = this.active_rows_wout_search!.filter(row => {
         return !!row.email.match(search) || 
@@ -151,7 +150,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         rows_after_filter_and_search: undefined
       });
     }
-  }
+  };
 
   handleCheckStudent = (id: number, check: boolean) => {
     if (check) {
@@ -165,7 +164,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         checked: new Set([...this.state.checked])
       });
     }
-  }
+  };
 
   handleChangePage = (_: unknown, new_page: number) => {
     this.setState({
@@ -184,19 +183,18 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     this.setState({
       delete_modal_open: false
     });
-  }
+  };
 
   handleOpen = (id_etu: number) => {
     this.setState({
       delete_modal_open: id_etu
     });
-  }
+  };
 
   handleDeleteConfirm = async () => {
     if (this.state.delete_modal_open === null)
       return;
 
-    /// TODO DO DELETE REQUEST
     const id = this.state.delete_modal_open as number;
     this.setState({
       delete_modal_open: null
@@ -219,7 +217,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
       delete_modal_open: false,
       rows: rows
     });
-  }
+  };
 
   handleFilterChange = (filters: StudentFilters) => {
     if (this.state.rows) {

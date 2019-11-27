@@ -4,7 +4,7 @@ import { throwCodeOrUndefined, notifyError } from "./helpers";
 
 export enum LoggedLevel {
   unlogged, logged, teacher
-};
+}
 
 class Settings {
   protected _token: string = "";

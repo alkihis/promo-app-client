@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = (props: DashboardProps) => {
       </main>
     </div>
   );
-}
+};
 
 export default Dashboard;
 

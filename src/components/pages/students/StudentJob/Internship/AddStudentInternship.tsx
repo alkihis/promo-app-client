@@ -135,7 +135,7 @@ class StudentInternshipForm extends React.Component<SIFProps, SIFState> {
     // L'entreprise doit être insérée
     if (active_company.id === 0) {
       try {
-        const cps: Company = await APIHELPER.request('company/create', { 
+        active_company = await APIHELPER.request('company/create', {
           parameters: { 
             user_id: this.context.id,
             name: active_company.name,
@@ -146,7 +146,6 @@ class StudentInternshipForm extends React.Component<SIFProps, SIFState> {
           method: 'POST'
         });
 
-        active_company = cps;
         this.setState({
           company: active_company
         });
@@ -160,7 +159,6 @@ class StudentInternshipForm extends React.Component<SIFProps, SIFState> {
     }
 
     // Si le contact doit être inséré
-    // TODO gérer modification (sûrement via une fiche d'entreprise côté enseignant ?)
     let contact = this.state.contact;
     if (contact && contact.id === 0) {
       try {

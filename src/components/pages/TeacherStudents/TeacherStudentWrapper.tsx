@@ -1,5 +1,4 @@
 import React from 'react';
-import classes from './TeacherStudentWrapper.module.scss';
 import { useParams, RouteComponentProps } from 'react-router-dom';
 import StudentPage from '../StudentHome/StudentHome';
 import { Student } from '../../../interfaces';
@@ -62,6 +61,6 @@ const TeacherStudentWrapper: React.FC<RouteComponentProps> = props => {
     />;
   else
     return <BigPreloader style={{ height: '100vh' }} />;
-}
+};
 
 export default TeacherStudentWrapper;

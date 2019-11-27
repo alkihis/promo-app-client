@@ -24,6 +24,7 @@ export function throwCodeOrUndefined(e: any) {
   if (Array.isArray(e) && APIHELPER.isApiError(e[1])) {
     throw e[1].code;
   }
+  // es-lint disable-new-line
   throw undefined;
 }
 

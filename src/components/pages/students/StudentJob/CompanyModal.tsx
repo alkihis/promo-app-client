@@ -1,6 +1,6 @@
 import React from 'react';
 import { Company, CompanyStatuses, CompanySizes, CompanySize, CompanyStatus, Student } from '../../../../interfaces';
-import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Checkbox, FormControlLabel, Hidden, DialogTitle, DialogContentText, Link, DialogActions } from '@material-ui/core';
+import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel, Hidden, DialogTitle, DialogContentText, Link, DialogActions } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import classes from './Modals.module.scss';
 import { Marger, notifyError, DividerMargin, BigPreloader } from '../../../../helpers';
@@ -9,8 +9,6 @@ import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
 import { toast } from '../../../shared/Toaster/Toaster';
 import Similarity from 'string-similarity';
-
-// TODO améliorer la reconnaissance des mots avec Lenvenstein
 
 type CMProps = {
   onClose?: () => void;
@@ -582,7 +580,7 @@ function ModalTownValidation(props: {
         console.error(err);
         setValidation([]);
       })
-  }, []);
+  }, [props]);
 
   function confirmInitial() {
     // Confirmer la ville initialement saisie

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import classes from './StudentHome.module.scss';
 import { RouteComponentProps, useLocation, useRouteMatch, Switch, Route, Redirect, Link } from 'react-router-dom';
 import { Location } from 'history';
@@ -29,7 +29,7 @@ type SPProps = RouteComponentProps & { student: ExtendedStudent };
 
 export const StudentWrapper: React.FC<GenericLoginWrapperProps> = props => {
   return <LoginWrapper allowOn="student" {...props} />;
-}
+};
 
 export const StudentSelfHome: React.FC<RouteComponentProps> = props => {
   return <StudentPage {...props} student={SETTINGS.logged_student!} />;
@@ -205,7 +205,7 @@ const StudentPage: React.FC<SPProps> = props => {
       </Dashboard>
     </StudentContext.Provider>
   );
-}
+};
 
 export default StudentPage;
 
@@ -213,7 +213,7 @@ const StudentNotFound: React.FC<RouteComponentProps> = () => {
   // const context: Student = useContext(StudentContext);
   
   return <EmbeddedError text="Page non trouvée." />;
-}
+};
 
 type SHPState = {
   info_loaded: boolean | number;

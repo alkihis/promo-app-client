@@ -1,5 +1,4 @@
 import React from 'react';
-import classes from './NotFound.module.scss';
 import { RouteComponentProps } from 'react-router-dom';
 import { FullError } from '../../shared/EmbeddedError/EmbeddedError';
 

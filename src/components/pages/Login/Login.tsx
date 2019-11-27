@@ -264,7 +264,7 @@ const SignIn: React.FC<RouteComponentProps> = props => {
       </Box>
     </Container>
   );
-}
+};
 
 function ErrorMessage(props: { code: number | undefined }) {
   if (!props.code) {

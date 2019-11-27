@@ -171,7 +171,6 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
   handleEmailChange = (evt: any, value: any) => {
     const email = typeof value === 'string' ? value : evt?.target?.value;
 
-    //// TODO Do things like auto set the town !
     let associated_company: Contact = undefined!;
 
     if (this.state.available) {
@@ -183,7 +182,7 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
       }
 
       if (associated_company) {
-        console.log("contact found", associated_company)
+        console.log("contact found", associated_company);
         this.setState({
           email,
           selected: associated_company,
@@ -204,7 +203,7 @@ export default class ContactModal extends React.Component<CMProps, CMState> {
     this.setState({
       name
     });
-  }
+  };
 
   render() {
     return (

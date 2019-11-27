@@ -5,6 +5,6 @@ const LostToken: React.FC<RouteComponentProps> = () => {
   return (
     <div>Lost Token ?</div>
   );
-}
+};
 
 export default LostToken;

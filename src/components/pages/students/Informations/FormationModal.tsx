@@ -1,6 +1,6 @@
 import React from 'react';
 import { Student, Formation, FormationLevel, FormationLevels } from '../../../../interfaces';
-import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, CircularProgress, Checkbox, FormControlLabel, Hidden } from '@material-ui/core';
+import { Dialog, DialogContent, TextField, Button, Slide, AppBar, Toolbar, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel, Hidden } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import classes from '../StudentJob/Modals.module.scss';
 import { Marger, notifyError, DividerMargin } from '../../../../helpers';
@@ -9,8 +9,6 @@ import APIHELPER from '../../../../APIHelper';
 import StudentContext from '../../../shared/StudentContext/StudentContext';
 import { toast } from '../../../shared/Toaster/Toaster';
 import Similarity from 'string-similarity';
-
-// TODO améliorer la reconnaissance des mots avec Lenvenstein
 
 type FMProps = {
   onClose?: () => void;
@@ -34,7 +32,6 @@ const Transition: any = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-// TODO faire un modal de sélection de lieu ?
 export default class FormationModal extends React.Component<FMProps, FMState> {
   static contextType = StudentContext;
   context!: Student;
@@ -130,7 +127,6 @@ export default class FormationModal extends React.Component<FMProps, FMState> {
       return;
     }
 
-    // TODO gérer modification et pas création
     let cps: Formation = {
       id: 0,
       branch: this.state.branch!,

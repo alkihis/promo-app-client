@@ -85,13 +85,13 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
     this.setState({
       modal_delete: id
     });
-  }
+  };
 
   handleModalClose = () => {
     this.setState({
       modal_delete: false
     });
-  }
+  };
 
   renderModalDeleteJob() {
     return (
@@ -168,7 +168,7 @@ export default class StudentInternship extends React.Component<SIProps, SIState>
         </CardActions>
       </Card>
     )
-  }
+  };
 
   renderJobs() {
     // Organisation des stages

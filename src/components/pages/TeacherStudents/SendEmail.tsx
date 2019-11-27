@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, AppBar, Toolbar, IconButton, Button, Typography, createStyles, makeStyles, List, ListItem, ListItemText, Divider, TextField, DialogTitle, DialogContent, DialogContentText, DialogActions, Paper, Chip } from '@material-ui/core';
+import { Dialog, AppBar, Toolbar, IconButton, Button, Typography, createStyles, makeStyles, List, ListItem, ListItemText, Divider, TextField, DialogTitle, DialogContent, DialogContentText, DialogActions, Chip } from '@material-ui/core';
 import { Student } from '../../../interfaces';
 import { TransitionModal, notifyError } from '../../../helpers';
 import CloseIcon from '@material-ui/icons/Close';
@@ -168,7 +168,7 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
       </Dialog>
     </>
   );
-}
+};
 
 const useStyles2 = makeStyles(theme =>
   createStyles({

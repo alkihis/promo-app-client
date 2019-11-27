@@ -1,7 +1,6 @@
 import React from 'react';
-import classes from './LoginWrapper.module.scss';
 import SETTINGS, { LoggedLevel } from '../../../Settings';
-import { RouteComponentProps, Link } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { BigPreloader } from '../../../helpers';
 import { FullError } from '../EmbeddedError/EmbeddedError';
 

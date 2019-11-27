@@ -280,14 +280,14 @@ class DomainModal extends React.Component<CMProps, CMState> {
     this.setState({
       full_name: name
     });
-  }
+  };
 
   handleNameChange = (evt: any) => {
     const name = evt.target.value;
     this.setState({
       name
     });
-  }
+  };
 
   render() {
     return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import classes from './Forms.module.scss';
 import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
-import { Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem, Input, FormHelperText, InputAdornment, TextField, Button } from '@material-ui/core';
+import { Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem, Input, FormHelperText, InputAdornment, Button } from '@material-ui/core';
 import { Job, Company, Contact, Domain, Domains, JobLevels, JobTypes, JobLevel, JobType, Student } from '../../../../interfaces';
 import CompanyModal, { CompanyResume } from './CompanyModal';
 import { Marger, errorToText, studentDashboardLink } from '../../../../helpers';
@@ -80,7 +80,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
       modal_contact: false,
       company: this.props.existing?.company,
       contact: this.props.existing?.referrer,
-      start_date: new Date,
+      start_date: new Date(),
       domain: "other",
       type: "cdi",
       level: "ingenieur",
@@ -111,7 +111,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
       modal_contact: false,
       company: this.state.existing?.company,
       contact: this.state.existing?.referrer,
-      start_date: this.state.existing?.from ? new Date(this.state.existing.from) : new Date,
+      start_date: this.state.existing?.from ? new Date(this.state.existing.from) : new Date(),
       domain: this.state.existing?.domain ?? "other",
       type: this.state.existing?.type ?? "cdi",
       level: this.state.existing?.level ?? "ingenieur",
@@ -169,7 +169,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
     }
     else {
       this.setState({
-        end_date: new Date
+        end_date: new Date()
       });
     }
   };
@@ -217,7 +217,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
     // L'entreprise doit être insérée
     if (active_company.id === 0) {
       try {
-        const cps: Company = await APIHELPER.request('company/create', { 
+        active_company = await APIHELPER.request('company/create', {
           parameters: { 
             user_id: this.context.id,
             name: active_company.name,
@@ -228,7 +228,6 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
           method: 'POST'
         });
 
-        active_company = cps;
         this.setState({
           company: active_company
         });
@@ -242,7 +241,6 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
     }
 
     // Si le contact doit être inséré
-    // TODO gérer modification (sûrement via une fiche d'entreprise côté enseignant ?)
     let contact = this.state.contact;
     if (contact && contact.id === 0) {
       try {
@@ -389,7 +387,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
                   label="Début de l'emploi"
                   format="MM/yyyy"
                   views={['year', 'month']}
-                  maxDate={new Date}
+                  maxDate={new Date()}
                   value={this.state.start_date}
                   onChange={this.handleStartChange}
                   required
@@ -401,7 +399,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
                   margin="normal"
                   label="Fin de l'emploi"
                   format="MM/yyyy"
-                  maxDate={new Date}
+                  maxDate={new Date()}
                   views={['year', 'month']}
                   value={this.state.end_date}
                   onChange={this.handleEndChange}

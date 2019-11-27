@@ -3,7 +3,7 @@ import { Company, CompanyStatuses, CompanySizes } from '../../../../interfaces';
 import APIHELPER from '../../../../APIHelper';
 import { notifyError, BigPreloader } from '../../../../helpers';
 import { DashboardContainer } from '../../../shared/Dashboard/Dashboard';
-import { ListItem, List, ListItemText, ListItemSecondaryAction, IconButton, Typography, Checkbox, Dialog, DialogContent, Button, DialogTitle, DialogActions, Link, DialogContentText, Menu, MenuItem } from '@material-ui/core';
+import { ListItem, List, ListItemText, ListItemSecondaryAction, IconButton, Typography, Checkbox, Dialog, DialogContent, Button, DialogTitle, DialogActions, DialogContentText, Menu, MenuItem } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import classes from './Entreprises.module.scss';
 import { toast } from '../../../shared/Toaster/Toaster';
