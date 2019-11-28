@@ -265,9 +265,18 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     );
   }
 
+  selectEmailsAndCopy() {
+    (document.getElementById('modal-email-addresses') as HTMLInputElement).select();
+    document.execCommand("copy");
+    toast('Les adresses e-mail ont été copiées dans votre presse-papiers.');
+  }
+
   modalSelectEmail() {
     return (
-      <Dialog open={!!this.state.modal_email_select}>
+      <Dialog 
+        open={!!this.state.modal_email_select} 
+        onClose={() => this.setState({ modal_email_select: "" })}
+      >
         {this.state.modal_email_select ? <>
           <DialogContent style={{ minWidth: '40vw' }}>
             <TextField
@@ -275,16 +284,13 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
               id="modal-email-addresses" 
               value={this.state.modal_email_select}
               label="Adresses e-mail"
+              fullWidth
             />
           </DialogContent>
           <DialogActions>
             <Button 
               color="secondary" 
-              onClick={() => {
-                (document.getElementById('modal-email-addresses') as HTMLInputElement).select();
-                document.execCommand("copy");
-                toast('Les adresses e-mail ont été copiées dans votre presse-papiers.');
-              }}
+              onClick={this.selectEmailsAndCopy}
             >
               Copier adresses
             </Button>
@@ -399,6 +405,8 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
               this.setState({
                 modal_email_select: addresses
               });
+
+              setTimeout(this.selectEmailsAndCopy, 100);
             }}
           >
             Copier les adresses

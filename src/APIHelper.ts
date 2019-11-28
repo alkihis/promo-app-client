@@ -1,7 +1,7 @@
 import SETTINGS from "./Settings";
 import { BASE_API_URL } from "./constants";
 
-const LATENCY_ON_EVERY_REQUEST = 500;
+const LATENCY_ON_EVERY_REQUEST = 0;
 
 export class APIHelper {
   /**

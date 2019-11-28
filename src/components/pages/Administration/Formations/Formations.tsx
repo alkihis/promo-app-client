@@ -150,7 +150,7 @@ const ModifyFormation: React.FC = () => {
       </List>
 
       {formations.length === 0 && <Typography variant="h6" color="textSecondary">
-        Aucune formations n'est disponible.
+        Aucune formation n'est disponible.
       </Typography>}
     </DashboardContainer>
   );

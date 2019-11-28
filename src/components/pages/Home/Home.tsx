@@ -133,29 +133,24 @@ function CompanyMap() {
       })
   }, []);
 
-  if (companies === undefined) {
-    return <></>;
-  }
-  else if (typeof companies === 'number') {
+  if (typeof companies === 'number') {
     return <EmbeddedError error={companies} />;
   }
 
   // Companies is MappedCompany[]
-  const default_view: Leaflet.LatLngExpression = companies.length ? 
-    [Number(companies[0].lat), Number(companies[0].lng)] : 
-    [51.505, -0.09];
+  const default_view: Leaflet.LatLngExpression = [45.7578137, 4.8320114];
 
   return (
     <>
       {modalOpen && <ContactsOf company={modalOpen} onClose={() => setModalOpen(false)} />}
 
-      <Map center={default_view} zoom={8} style={{ height: '40vh' }}>
+      <Map center={default_view} zoom={6} style={{ height: '40vh', minHeight: '400px' }}>
         <TileLayer
           url="https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"
           attribution="&copy; Wikipedia Maps | <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
         />
 
-        {companies.map(c => <Marker key={c.town} position={[Number(c.lat), Number(c.lng)]}>
+        {companies && companies.map(c => <Marker key={c.town} position={[Number(c.lat), Number(c.lng)]}>
           <Popup>
             <strong>{c.town}</strong>
             <br />
@@ -219,7 +214,9 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
             {contacts.map((c, index) => <React.Fragment key={c.id}>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
-                  <Avatar alt={c.name}>{c.name.slice(0, 1)}</Avatar>
+                  <Avatar alt={c.name}>
+                    {c.name.slice(0, 1)}
+                  </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary={c.name}
@@ -252,4 +249,3 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
     </Dialog>
   );
 }
-
