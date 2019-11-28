@@ -45,3 +45,9 @@ code {
   color: #196aff;
 }
 
+@media screen and (max-width: 600px) {
+  .MuiListItem-gutters.no-left {
+    padding-left: 0 !important;
+  }
+}
+

@@ -330,7 +330,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
             <Marger size=".5rem" />
 
             {/* E-mail */}
-            <FormControl>
+            <FormControl style={{ minWidth: '30%' }}>
               <InputLabel htmlFor="email-input">Adresse e-mail</InputLabel>
               <Input
                 type="email" 

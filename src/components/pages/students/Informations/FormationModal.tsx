@@ -346,7 +346,12 @@ export const FormationResume: React.FC<{
       <Button color="secondary" className={classes.enter_button} onClick={props.onLinkClick}>
         Modifier
       </Button>
-      <Button color="primary" className={classes.enter_button} onClick={props.onDeleteClick}>
+      <Button 
+        color="primary" 
+        disabled={!props.formation}
+        className={classes.enter_button} 
+        onClick={props.onDeleteClick}
+      >
         Supprimer
       </Button>
     </div>

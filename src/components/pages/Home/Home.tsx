@@ -212,7 +212,7 @@ function ContactsOf(props: { company: MappedCompany, onClose: () => void }) {
 
           <List>
             {contacts.map((c, index) => <React.Fragment key={c.id}>
-              <ListItem alignItems="flex-start">
+              <ListItem className="no-left" alignItems="flex-start">
                 <ListItemAvatar>
                   <Avatar alt={c.name}>
                     {c.name.slice(0, 1)}
