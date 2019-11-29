@@ -85,6 +85,47 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
       });
   }
 
+  function handleAddTagClick(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const t = document.getElementById('content-email-textarea') as HTMLTextAreaElement;
+
+    const pos = t.selectionStart;
+    const data_tags = (e.currentTarget as HTMLElement).dataset;
+
+    let injector = "{{ " + data_tags.tag + " ";
+    let new_pos = pos + injector.length;
+
+    if (data_tags.hasMember === "true") {
+      if (data_tags.hasQuotes) {
+        if (data_tags.hasQuotes === "1") {
+          // Quotes are for first arg
+          injector += '""';
+          new_pos++;
+        }
+        else {
+          // Quotes are for second arg
+          injector += ' ""';
+        }
+      }
+      injector += " }}";
+    }
+    else {
+      injector += "}}";
+      new_pos = pos + injector.length;
+    }
+
+    const new_val = t.value.slice(0, t.selectionStart) + injector + t.value.slice(t.selectionStart);
+    setValue(new_val);
+
+    t.focus();
+    
+    setTimeout(() => {
+      t.setSelectionRange(new_pos, new_pos);  
+    }, 20);
+  }
+
   return (
     <>
       <Dialog 
@@ -135,12 +176,40 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
                 value={value}
                 onChange={elt => setValue(elt.target.value)}
                 className={classes.textField}
-                InputProps={{ style: { width: '100%' } }}
+                InputProps={{ style: { width: '100%' }, id: 'content-email-textarea' }}
                 margin="normal"
                 variant="outlined"
               />
             </ListItem>
           </List>
+        </div>
+
+        <div>
+          <Typography>
+            Insérer des éléments
+          </Typography>
+
+          <Button data-tag="title" data-has-member="true" onClick={handleAddTagClick}>
+            Titre
+          </Button>
+          <Button data-tag="subtitle" data-has-member="true" onClick={handleAddTagClick}>
+            Sous-titre
+          </Button>
+          <Button data-tag="strong" data-has-member="true" onClick={handleAddTagClick}>
+            Texte en gras
+          </Button>
+          <Button data-tag="new_line" data-has-member="false" onClick={handleAddTagClick}>
+            Nouvelle ligne
+          </Button>
+          <Button data-tag="italic" data-has-member="true" onClick={handleAddTagClick}>
+            Italique
+          </Button>
+          <Button data-tag="link" data-has-member="true" data-has-quotes="2" onClick={handleAddTagClick}>
+            Lien
+          </Button>
+          <Button data-tag="auth_link" data-has-member="true" data-has-quotes="1" onClick={handleAddTagClick}>
+            Lien vers page de connexion
+          </Button>
         </div>
       </Dialog>
 
