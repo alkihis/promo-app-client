@@ -57,7 +57,7 @@ export default class AppRouter extends React.Component {
 
           <Route path="/login/" component={SignIn} />
 
-          <Route path="/lost_token/" component={LostToken} />
+          <Route path="/mail_login/" component={LostToken} />
 
           {/* Not Found page. */}
           <Route component={NotFound} />

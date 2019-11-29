@@ -196,10 +196,18 @@ const SignIn: React.FC<RouteComponentProps> = props => {
 
       <div className={classes.spaper + " " + classes.wrapperPaper + " " + (status === true ? classes.wrapperPaperOk : "")}>
         {!is_teacher && <Typography className={classes.etu_text}>
-          Si vous êtes inscrit à ce service, vous devriez avoir reçu un
+          Si vous êtes inscrit•e à ce service, vous devriez avoir reçu un
           e-mail permettant de vous connecter automatiquement.
 
-          Si vous l'avez perdu, mais que vous disposez toujours de votre clé d'accès
+          <br />
+
+          Si vous l'avez perdu, cliquez <Link href="#" variant="body1" to="/mail_login/" component={RouterLink}>
+            ici pour en renvoyer un
+          </Link>.
+
+          <br />
+
+          Néanmoins, si vous disposez toujours de votre clé d'accès
           unique, vous pouvez la spécifier ici.
         </Typography>}
 
@@ -238,7 +246,7 @@ const SignIn: React.FC<RouteComponentProps> = props => {
             La connexion sera persistente.
           </Typography>
 
-          {status !== null && status !== true && <Grid container justify="space-between">
+          {status !== null && status !== true && <Grid container justify="center">
             <Grid item>
               <Link 
                 href="#" 
@@ -248,11 +256,6 @@ const SignIn: React.FC<RouteComponentProps> = props => {
                 onClick={resetCmpt}
               >
                 Connexion {!is_teacher ? "enseignante" : "étudiante"}
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link href="#" variant="body2" to="/lost_token/" component={RouterLink}>
-                {!is_teacher ? "Clé d'accès" : "Mot de passe"} perdu{!is_teacher ? "e" : ""} ?
               </Link>
             </Grid>
           </Grid>}

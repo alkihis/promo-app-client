@@ -132,7 +132,6 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
               <TextField
                 label="Contenu de l'e-mail"
                 multiline
-                rows="10"
                 value={value}
                 onChange={elt => setValue(elt.target.value)}
                 className={classes.textField}
