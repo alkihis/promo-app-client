@@ -5,7 +5,6 @@ import { Route, RouteComponentProps, Switch, useLocation, useRouteMatch } from '
 import { Location } from 'history';
 import TeacherStudents from '../TeacherStudents/TeacherStudents';
 import AddStudent from '../AddStudent/AddStudent';
-
 import LogoutIcon from '@material-ui/icons/Block';
 import StudentIcon from '@material-ui/icons/People';
 import AddStudentIcon from '@material-ui/icons/PersonAdd';
@@ -14,9 +13,11 @@ import WorkIcon from '@material-ui/icons/Work';
 import FormationIcon from '@material-ui/icons/AccountBalance';
 import ResumeIcon from '@material-ui/icons/Public';
 import DomainIcon from '@material-ui/icons/Domain';
+import AskCreationIcon from '@material-ui/icons/ContactMail';
 import { ClassicModal, notifyError, BigPreloader, DividerMargin } from '../../../helpers';
 import ModifyCompany from '../Administration/Entreprises/Entreprises';
 import ModifyContacts from '../Administration/Entreprises/ContactEdit';
+import SendAskCreation from '../Administration/AskCreation/SendAskCreation';
 import ModifyFormation from '../Administration/Formations/Formations';
 import ModifyDomains from '../Administration/Domaines/Domaines';
 import APIHELPER from '../../../APIHelper';
@@ -33,6 +34,7 @@ const ROUTES_AVAILABLE: {[name: string]: string} = {
   "Contacts": "contact/",
   "Formations": "formations",
   "Domaines": "domains",
+  "Demande de création": "student/ask_creation",
 };
 
 // Teacher router
@@ -54,6 +56,11 @@ const TeacherPage: React.FC = () => {
         text: "Ajout d'étudiant",
         selected: location.pathname === base + ROUTES_AVAILABLE["Ajout d'étudiant"],
         linkTo: base + "student/add"
+      }, {
+        icon: AskCreationIcon,
+        text: "Demande de création",
+        selected: location.pathname === base + ROUTES_AVAILABLE["Demande de création"],
+        linkTo: base + "student/ask_creation"
       }, {
         icon: StatsIcon,
         text: "Statistiques",
@@ -131,6 +138,9 @@ const TeacherPage: React.FC = () => {
 
         {/** Add a new student (enter basic informations about him/her). */}
         <Route path={`${match.path}student/add`} component={AddStudent} />
+
+        {/** Ask account creation */}
+        <Route path={`${match.path}student/ask_creation`} component={SendAskCreation} /> 
 
         {/** Statistics */}
         <Route path={`${match.path}stats`} component={TeacherStats} /> 

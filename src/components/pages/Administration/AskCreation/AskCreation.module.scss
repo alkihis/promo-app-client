@@ -1,0 +1,35 @@
+.formControl {
+  margin: 1rem !important;
+  min-width: 240px !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.form {
+  margin-top: 1.5rem;
+}
+
+.select {
+  min-width: 240px !important;
+  text-align: left !important;
+}
+
+.wrapper {
+  margin: 1rem;
+  position: relative;
+  text-align: right;
+}
+
+.submit {
+  margin: 3rem 0 2rem;
+  position: relative;
+}
+
+.buttonProgress {
+  color: #4d56ca;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -13px;
+  margin-left: -11px;
+}

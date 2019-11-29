@@ -10,6 +10,7 @@ import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrappe
 import SignIn from '../pages/Login/Login';
 import LostToken from '../pages/Login/LostToken';
 import DashboardWrapper from '../shared/DashboardWrapper/DashboardWrapper';
+import AskCreationStudent from '../pages/Administration/AskCreation/AskCreation';
 
 export default class AppRouter extends React.Component {
   render() {
@@ -18,6 +19,9 @@ export default class AppRouter extends React.Component {
         <Switch>
           {/** Autoredirect for dashboard (teacher & student) */}
           <Route path="/dashboard/" exact component={DashboardWrapper} />
+
+          {/** Account creation */}
+          <Route path="/profile_create" exact component={AskCreationStudent} /> 
 
           {/** 
             Show student information 
