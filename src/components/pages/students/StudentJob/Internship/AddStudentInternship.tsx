@@ -104,8 +104,6 @@ class StudentInternshipForm extends React.Component<SIFProps, SIFState> {
   }
 
   handleDuringChange = (evt: any) => {
-    // TODO check if date is valid
-
     this.setState({
       during: evt.target.value as string
     });
@@ -243,9 +241,9 @@ class StudentInternshipForm extends React.Component<SIFProps, SIFState> {
     }
 
     // Génération des années possibles
-    // todo générer années valides pour cet étudiant
     const available_years: number[] = [];
-    for (let i = 2019; i >= 2015; i--) {
+    const current_year = (new Date()).getFullYear();
+    for (let i = current_year; i >= Number(this.context.year_in); i--) {
       available_years.push(i);
     }
 

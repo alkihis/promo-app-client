@@ -6,6 +6,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { toast } from '../../shared/Toaster/Toaster';
 import APIHELPER from '../../../APIHelper';
 import MoreIcon from '@material-ui/icons/MoreHoriz';
+import { ButtonProps } from '@material-ui/core/Button';
 
 const useStyles = makeStyles(theme =>
   createStyles({
@@ -27,6 +28,13 @@ const useStyles = makeStyles(theme =>
     lockModal: {
       userSelect: 'none',
       pointerEvents: 'none',
+    }, 
+    btn_wrapper: {
+      margin: '0 1rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
     }
   }),
 );
@@ -177,6 +185,7 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
                 onChange={elt => setValue(elt.target.value)}
                 className={classes.textField}
                 InputProps={{ style: { width: '100%' }, id: 'content-email-textarea' }}
+                inputProps={{ style: { minHeight: '200px' } }}
                 margin="normal"
                 variant="outlined"
               />
@@ -184,32 +193,37 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
           </List>
         </div>
 
-        <div>
-          <Typography>
+        <div className={classes.btn_wrapper}>
+          <Typography color="textSecondary" variant="h6">
             Insérer des éléments
           </Typography>
 
-          <Button data-tag="title" data-has-member="true" onClick={handleAddTagClick}>
-            Titre
-          </Button>
-          <Button data-tag="subtitle" data-has-member="true" onClick={handleAddTagClick}>
-            Sous-titre
-          </Button>
-          <Button data-tag="strong" data-has-member="true" onClick={handleAddTagClick}>
-            Texte en gras
-          </Button>
-          <Button data-tag="new_line" data-has-member="false" onClick={handleAddTagClick}>
-            Nouvelle ligne
-          </Button>
-          <Button data-tag="italic" data-has-member="true" onClick={handleAddTagClick}>
-            Italique
-          </Button>
-          <Button data-tag="link" data-has-member="true" data-has-quotes="2" onClick={handleAddTagClick}>
-            Lien
-          </Button>
-          <Button data-tag="auth_link" data-has-member="true" data-has-quotes="1" onClick={handleAddTagClick}>
-            Lien vers page de connexion
-          </Button>
+          <div>
+            <TagButton tag="title" withMember onClick={handleAddTagClick}>
+              Titre
+            </TagButton>
+            <TagButton tag="subtitle" withMember onClick={handleAddTagClick}>
+              Sous-titre
+            </TagButton>
+            <TagButton tag="strong" withMember onClick={handleAddTagClick}>
+              Texte en gras
+            </TagButton>
+            <TagButton tag="italic" withMember onClick={handleAddTagClick}>
+              Italique
+            </TagButton>
+            <TagButton tag="student" onClick={handleAddTagClick}>
+              Étudiant
+            </TagButton>
+            <TagButton tag="new_line" onClick={handleAddTagClick}>
+              Nouvelle ligne
+            </TagButton>
+            <TagButton tag="link" withMember quotes={2} onClick={handleAddTagClick}>
+              Lien
+            </TagButton>
+            <TagButton tag="auth_link" withMember quotes={1} onClick={handleAddTagClick}>
+              Lien vers page de connexion
+            </TagButton>
+          </div>
         </div>
       </Dialog>
 
@@ -237,6 +251,21 @@ const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Stu
     </>
   );
 };
+
+function TagButton(props: ButtonProps & { withMember?: boolean; quotes?: number; tag: string; }) {
+  let has_member = "false";
+  let has_quotes: string | undefined = undefined;
+  if (props.withMember) {
+    has_member = "true";
+  }
+  if (props.quotes) {
+    has_quotes = String(props.quotes);
+  }
+
+  return (
+    <Button data-tag={props.tag} data-has-member={has_member} data-has-quotes={has_quotes} {...props} />
+  );
+}
 
 const useStyles2 = makeStyles(theme =>
   createStyles({

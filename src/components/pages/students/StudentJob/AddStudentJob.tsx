@@ -387,6 +387,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
                   label="Début de l'emploi"
                   format="MM/yyyy"
                   views={['year', 'month']}
+                  minDate={new Date('2015-01-01')}
                   maxDate={new Date()}
                   value={this.state.start_date}
                   onChange={this.handleStartChange}
@@ -399,6 +400,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
                   margin="normal"
                   label="Fin de l'emploi"
                   format="MM/yyyy"
+                  minDate={new Date('2015-01-01')}
                   maxDate={new Date()}
                   views={['year', 'month']}
                   value={this.state.end_date}

@@ -84,6 +84,27 @@ export default class StudentInformations extends React.Component<RouteComponentP
   };
 
   handleYearInChange = (evt: React.ChangeEvent<{ value: unknown }>) => {
+    const current_year = (new Date()).getFullYear();
+    if (Number(evt.target.value) === current_year) {
+      this.setState({
+        year_out: undefined,
+        graduated: false
+      });
+    }
+    else {
+      const actual_year_out = this.state.year_out;
+      if (actual_year_out) {
+        const year_out = Number(actual_year_out);
+        const year_in = Number(evt.target.value);
+  
+        if (year_in + 1 > year_out) {
+          this.setState({
+            year_out: String(year_in + 1)
+          });
+        } 
+      }
+    }
+
     this.setState({
       year_in: evt.target.value as string
     });
@@ -252,10 +273,16 @@ export default class StudentInformations extends React.Component<RouteComponentP
   render() {
     // TODO get available start & end year for this student
     const available_start_years: number[] = [];
-    for (let i = 2019; i >= 2015; i--) {
+    const current_year = (new Date()).getFullYear();
+    for (let i = current_year; i >= 2015; i--) {
       available_start_years.push(i);
     }
-    const available_end_years = available_start_years;
+    const available_end_years: number[] = [];
+    for (let i = current_year; i >= Number(this.state.year_in) + 1; i--) {
+      available_end_years.push(i);
+    }
+
+    const cant_be_graduated = Number(this.state.year_in) === current_year || !this.state.year_out;
 
     return (
       <DashboardContainer maxWidth="md">
@@ -399,7 +426,12 @@ export default class StudentInformations extends React.Component<RouteComponentP
             <div className={classes.grid_two_column + " " + classes.gap}>
               <FormControlLabel
                 className={classes.flex_end}
-                control={<Checkbox checked={this.state.graduated} onChange={this.handleGraduatedChange} value="not-end" />}
+                control={<Checkbox 
+                  checked={this.state.graduated} 
+                  onChange={this.handleGraduatedChange} 
+                  value="not-end"
+                  disabled={cant_be_graduated}
+                  />}
                 label="Je suis diplômé•e du master"
               />
 
