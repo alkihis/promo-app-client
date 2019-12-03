@@ -5,7 +5,7 @@ import { Location } from 'history';
 import LoginWrapper, { GenericLoginWrapperProps } from '../../shared/LoginWrapper/LoginWrapper';
 import SETTINGS, { LoggedLevel } from '../../../Settings';
 import Dashboard, { DrawerSection, DashboardDrawer, DashboardContainer, DrawerListItem } from '../../shared/Dashboard/Dashboard';
-import { ClassicModal, BigPreloader, uppercaseFirst, studentDashboardLink } from '../../../helpers';
+import { ClassicModal, BigPreloader, uppercaseFirst, studentDashboardLink, notifyError } from '../../../helpers';
 
 import LogoutIcon from '@material-ui/icons/Block';
 import ResumeIcon from '@material-ui/icons/Public';
@@ -22,8 +22,9 @@ import StudentInternship from '../students/StudentJob/Internship/StudentIntershi
 import AddStudentInternship, { ModifyStudentInternship } from '../students/StudentJob/Internship/AddStudentInternship';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import StudentInformations from '../students/Informations/StudentInformations';
-import { Typography, Card, CardContent, CardActions, IconButton } from '@material-ui/core';
+import { Typography, Card, CardContent, CardActions, IconButton, Paper, Link as MuiLink } from '@material-ui/core';
 import APIHELPER from '../../../APIHelper';
+import { toast } from '../../shared/Toaster/Toaster';
 
 type SPProps = RouteComponentProps & { student: ExtendedStudent };
 
@@ -246,6 +247,18 @@ class StudentHomePage extends React.Component<RouteComponentProps, SHPState> {
       });
   }
 
+  refreshLastUpdate = () => {
+    this.context.last_update = (new Date()).toString();
+
+    // Refresh le composant
+    this.forceUpdate();
+
+    APIHELPER
+      .request('student/confirm', { parameters: { user_id: this.context.id } })
+      .then(() => toast("Votre profil a été actualisé."))
+      .catch(notifyError);
+  }
+
   renderLoading() {
     return <BigPreloader style={{ marginTop: '50px' }} />;
   }
@@ -367,27 +380,61 @@ class StudentHomePage extends React.Component<RouteComponentProps, SHPState> {
     );
   }
 
+  renderWarningLongActualisation() {
+    const actual_last_update = new Date(this.context.last_update);
+
+    const diff = new Date(Date.now() - actual_last_update.getTime());
+    const nb_months = diff.getMonth();
+    const nb_years = diff.getFullYear() - 1970;
+
+    if (!nb_months && !nb_years) {
+      return "";
+    }
+
+    let msg = "";
+    if (nb_years) {
+      msg = "depuis " + String(nb_years) + " an" + (nb_years > 1 ? "s" : "");
+    }
+    else {
+      msg = "depuis " + String(nb_months) + " mois";
+    }
+
+    return (
+      <Paper className={classes.warning_long_actual}>
+        Votre profil n'a pas été mis à jour <strong>{msg}</strong>.
+        Si votre situation n'a pas changé, cliquez simplement {""}
+        <strong>
+          <MuiLink href="#!" color="primary" onClick={this.refreshLastUpdate}>ici</MuiLink>
+        </strong>.
+      </Paper>
+    );
+  }
+
   renderContent() {
     return (
-      <div className={classes.home_root}>
-        <div>
-          {/* Informations personnelles */}
-          <Typography variant="h5" gutterBottom>
-            Vous
-          </Typography>
+      <>
+        {this.renderWarningLongActualisation()}
 
-          {this.renderYou()}
+        <div className={classes.home_root}>
+          <div>
+            {/* Informations personnelles */}
+            <Typography variant="h5" gutterBottom>
+              Vous
+            </Typography>
+
+            {this.renderYou()}
+          </div>
+
+          <div>
+            {/* Dernier emploi */}
+            <Typography variant="h5" gutterBottom>
+              Emploi en cours
+            </Typography>
+
+            {this.renderLastJob()}
+          </div>
         </div>
-
-        <div>
-          {/* Dernier emploi */}
-          <Typography variant="h5" gutterBottom>
-            Emploi en cours
-          </Typography>
-
-          {this.renderLastJob()}
-        </div>
-      </div>
+      </>
     );
   }
 
