@@ -369,6 +369,7 @@ class StudentJobForm extends React.Component<SJFProps, SJFState> {
         <ContactResume 
           contact={this.state.contact} 
           onLinkClick={() => this.setState({ modal_contact: true })} 
+          onDelete={() => this.setState({ contact: undefined })}
           disabled={!this.state.company}
         /> 
 

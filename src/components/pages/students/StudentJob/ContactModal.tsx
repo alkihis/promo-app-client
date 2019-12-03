@@ -303,7 +303,12 @@ function ContactEmailSelect(props: {
   )
 }
 
-export const ContactResume: React.FC<{ onLinkClick?: () => void, contact?: Contact, disabled?: boolean }> = props => {
+export const ContactResume: React.FC<{ 
+  onLinkClick?: () => void, 
+  contact?: Contact, 
+  disabled?: boolean,
+  onDelete?: () => void 
+}> = props => {
   return (
     <div>
       {props.contact ? 
@@ -322,6 +327,10 @@ export const ContactResume: React.FC<{ onLinkClick?: () => void, contact?: Conta
 
       <Button color="primary" className={classes.enter_button} onClick={props.onLinkClick} disabled={props.disabled}>
         Modifier
+      </Button>
+
+      <Button color="secondary" disabled={!props.contact || props.disabled} className={classes.enter_button} onClick={props.onDelete}>
+        Supprimer
       </Button>
     </div>
   );
