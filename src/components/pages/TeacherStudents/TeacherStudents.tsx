@@ -201,12 +201,23 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     });
 
     let rows = this.state.rows as Student[];
+    let active_rows = this.state.rows_after_filter_and_search;
+    let active_filter = this.state.rows_after_filter;
+    const selected = new Set([...this.state.checked]);
     
     try {
       await APIHELPER.request('student/' + String(id), { method: 'DELETE' });
 
       // Supprime du tableau de lignes l'étudiant supprimé
       rows = rows.filter(r => r.id !== id);
+      selected.delete(id);
+
+      if (active_filter)
+        active_filter = active_filter.filter(r => r.id !== id)
+
+      if (active_rows)
+        active_rows = active_rows.filter(r => r.id !== id);
+
       toast("L'étudiant a été supprimé", "success");
 
     } catch (e) {
@@ -215,7 +226,10 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
 
     this.setState({
       delete_modal_open: false,
-      rows: rows
+      rows,
+      checked: selected,
+      rows_after_filter_and_search: active_rows,
+      rows_after_filter: active_filter
     });
   };
 
