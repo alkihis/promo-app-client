@@ -615,7 +615,13 @@ const columns: Column[] = [
   { id: 'email', label: 'E-mail', minWidth: 230 },
 ];
 
-const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void, onSuccess: () => void }) => {
+const ModalSendMailBase = (props: {
+  students: Student[],
+  onClose: () => void,
+  onSuccess: () => void,
+  onDeleteRequest: (students: Student[]) => Promise<any>,
+  text: string
+}) => {
   const [inSend, setInSend] = React.useState(false);
 
   function sendRequest() {
@@ -625,12 +631,7 @@ const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void
 
     setInSend(true);
 
-    APIHELPER.request('student/ask_refresh', {
-      method: 'POST',
-      parameters: {
-        ids: props.students.map(e => e.id)
-      }
-    })
+    props.onDeleteRequest(props.students)
       .then(() => {
         setInSend(false);
         toast("Les messages ont été envoyés", "success");
@@ -647,7 +648,7 @@ const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void
       <DialogTitle>Envoyer ces e-mails ?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Les étudiants sélectionnés recevront un e-mail leur demandant de rafraîchir leur profil.
+            Les étudiants sélectionnés recevront un e-mail {props.text}.
             Voulez-vous continuer ?
           </DialogContentText>
         </DialogContent>
@@ -660,61 +661,45 @@ const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void
           </Button>
         </DialogActions>
     </Dialog>
-  )
+  );
+};
+
+const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void, onSuccess: () => void }) => {
+  return <ModalSendMailBase
+    students={props.students}
+    onClose={props.onClose}
+    onSuccess={props.onSuccess}
+    onDeleteRequest={students => APIHELPER.request('student/ask_refresh', {
+      method: 'POST',
+      parameters: {
+        ids: students.map(e => e.id)
+      }
+    })}
+    text="leur demandant de rafraîchir leur profil"
+  />;
 };
 
 const ModalAskLoginEmail = (props: { students: Student[], onClose: () => void, onSuccess: () => void }) => {
-  const [inSend, setInSend] = React.useState(false);
+  return <ModalSendMailBase
+    students={props.students}
+    onClose={props.onClose}
+    onSuccess={props.onSuccess}
+    onDeleteRequest={students => {
+      const promises: Promise<any>[] = [];
 
-  function sendRequest() {
-    if (inSend) {
-      return;
-    }
-
-    setInSend(true);
-
-    const promises: Promise<any>[] = [];
-
-    for (const student of props.students) {
-      promises.push(
-        APIHELPER.request('student/lost_token', {
-          method: 'GET',
-          parameters: {
-            email: student.email
-          }
-        })
-      );
-    }
-    
-    Promise.all(promises)
-      .then(() => {
-        setInSend(false);
-        toast("Les messages ont été envoyés", "success");
-        props.onSuccess();
-      })
-      .catch(e => {
-        notifyError(e);
-        setInSend(false);
-      });
-  }
-
-  return (
-    <Dialog open onClose={props.onClose}>
-      <DialogTitle>Envoyer ces e-mails ?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Les étudiants sélectionnés recevront un e-mail leur demandant de se connecter.
-            Voulez-vous continuer ?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.onClose} color="secondary" autoFocus>
-            Annuler
-          </Button>
-          <Button onClick={sendRequest} color="primary">
-            Confirmer
-          </Button>
-        </DialogActions>
-    </Dialog>
-  )
+      for (const student of students) {
+        promises.push(
+          APIHELPER.request('student/lost_token', {
+            method: 'GET',
+            parameters: {
+              email: student.email
+            }
+          })
+        );
+      }
+      
+      return Promise.all(promises);
+    }}
+    text="leur demandant de se connecter"
+  />;
 };
