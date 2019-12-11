@@ -45,9 +45,16 @@ const HomePage: React.FC = () => {
       </AppBar>
 
       <Container maxWidth="lg" className={classes.container}>
-        <Typography variant="h3" className={classes.home_title_main} gutterBottom>
-          Master bioinfo@lyon
-        </Typography>
+        <div className={classes.mainlogoblock}>
+          <a href="https://www.bioinfo-lyon.fr/" className={classes.mainlogolink1} target="_blank" rel="noopener noreferrer">
+            <img src="/assets/bio-info.png" className={classes.mainlogo} alt="Logo master" />
+          </a>
+          <a href="/">
+            <img src="/assets/promo-app.png" className={classes.mainlogo} alt="Logo application" />
+          </a>
+        </div>
+
+        <Marger size=".2rem" />
 
         <Typography variant="h5" className={classes.home_title} gutterBottom>
           Suivi des promotions
@@ -80,12 +87,6 @@ const HomePage: React.FC = () => {
         <CompanyMap />
 
         <DividerMargin size="1rem" />
-        
-        <a href="https://www.bioinfo-lyon.fr/" target="_blank" rel="noopener noreferrer">
-          <img src="/assets/bio-info.png" className={classes.mainlogo} alt="Logo master" />
-        </a>
-
-        <Marger size=".2rem" />
         
         <div className={classes.responsive_img_container}>
           <a href="http://lbbe.univ-lyon1.fr/" target="_blank" rel="noopener noreferrer">
