@@ -15,10 +15,12 @@ import { toast } from '../../shared/Toaster/Toaster';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Link } from 'react-router-dom';
-import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent, MenuItem, Menu, DialogTitle, DialogContentText } from '@material-ui/core';
+import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent, MenuItem, Menu, DialogTitle, DialogContentText, Hidden } from '@material-ui/core';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import StudentFindOptions from './StudentFindOptions';
 import ModalSendEmail from './SendEmail';
+import { BASE_API_URL } from '../../../constants';
+import SETTINGS from '../../../Settings';
 
 type TSState = {
   page: number;
@@ -248,6 +250,24 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         rows_after_filter_and_search: undefined,
       });
     }
+  };
+
+  exportAll = () => {
+    const el = document.getElementById('form-dl-placeholder') as HTMLElement;
+
+    const checked = [...this.state.checked].map(e => String(e)).join(',');
+
+    el.innerHTML = `
+      <form id="form-dl" method="post" action="${BASE_API_URL}teacher/export" target="_blank">
+        <input type="hidden" value="${checked}" name="students">
+        <input type="hidden" name="token" value="${SETTINGS.token}">
+      </form>
+    `;
+    
+    setTimeout(() => {
+      (document.getElementById('form-dl') as HTMLFormElement).submit();
+      el.innerHTML = "";
+    }, 5);
   };
 
   loader() {
@@ -482,12 +502,19 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
           >
             Copier les adresses
           </Button>
+
+          <Button 
+            className={classes.export_btn} 
+            disabled={!this.state.checked.size}
+            onClick={this.exportAll}
+          >
+            Exporter données
+          </Button>
         </div>
       </div>
     );
   }
 
-  // TODO table sort by column (see doc material ui, example)
   render() {
     if (this.state.rows === undefined) {
       return this.loader();
@@ -549,6 +576,10 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         {this.state.modal_send_refresh_mail && this.modalSendRefreshDataEmail()}
 
         <Marger size=".5rem" />
+
+        <Hidden>
+          <div id="form-dl-placeholder" />
+        </Hidden>
 
         <Paper className={classes.root}>
           {/* Search input */}

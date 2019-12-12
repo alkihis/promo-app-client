@@ -45,7 +45,7 @@
 
 .selection_btns {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto;
   gap: 10px 25px;
 
   @media screen and (max-width: 700px) {
@@ -59,4 +59,8 @@
 
 .clipboard_cpy_btn:not(:disabled) {
   color: #37a245 !important;
+}
+
+.export_btn:not(:disabled) {
+  color: #ee7943 !important;
 }

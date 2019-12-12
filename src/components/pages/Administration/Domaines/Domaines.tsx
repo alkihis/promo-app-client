@@ -252,20 +252,18 @@ class DomainModal extends React.Component<CMProps, CMState> {
       domain: this.state.name
     };
 
-    if (this.props.modify) {
-      try {
-        domain = await APIHELPER.request('domain/modify', {
-          method: 'POST',
-          parameters: domain
-        });
-      } catch (e) {
-        notifyError(e);
-        this.setState({
-          in_load: false
-        });
+    try {
+      domain = await APIHELPER.request('domain/' + (this.props.modify ? 'modify' : 'create'), {
+        method: 'POST',
+        parameters: domain
+      });
+    } catch (e) {
+      notifyError(e);
+      this.setState({
+        in_load: false
+      });
 
-        return;
-      }
+      return;
     }
 
     this.setState({
