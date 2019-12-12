@@ -11,6 +11,7 @@ import { SvgIconProps } from '@material-ui/core/SvgIcon';
 type EEProp = {
   error?: APIError | number;
   text?: string;
+  in_container?: boolean;
 };
 
 type FEProp = {
@@ -32,7 +33,7 @@ export const FullError: React.FC<FEProp> = props => {
   }
 
   return (
-    <CenterComponent style={{ height: '100vh' }}>
+    <CenterComponent style={{ height: '100vh', padding: '10px' }}>
       {props.custom_icon ? 
         <props.custom_icon className={classes.icon} /> : 
         <ErrorIcon className={classes.icon} />
@@ -60,13 +61,18 @@ const EmbeddedError: React.FC<EEProp> = props => {
     t = errorToText(props.error);
   }
 
+  let style: any = {};
+  if (props.in_container !== false) {
+    style['padding'] = "14px";
+  }
+
   return (
-    <CenterComponent className={classes.container}>
+    <CenterComponent className={classes.container} style={style}>
       <ErrorIcon className={classes.icon} />
       <Typography component="h5" className={classes.header}>
         Erreur
       </Typography>
-      <Typography component="h6" className={classes.text}>
+      <Typography component="h6" className={classes.text} align="center">
         {t ? t : "Erreur inconnue"}
       </Typography>
       {props.children}
@@ -74,7 +80,11 @@ const EmbeddedError: React.FC<EEProp> = props => {
   )
 };
 
-export const EmbeddedInfo: React.FC<{text: string, link?: { internal?: boolean; to: string; text?: string; } | string}> = props => {
+export const EmbeddedInfo: React.FC<{
+  text: string, 
+  link?: { internal?: boolean; to: string; text?: string; } | string,
+  in_container?: boolean,
+}> = props => {
   let t = props.text as string;
 
   const link = props.link &&
@@ -87,10 +97,15 @@ export const EmbeddedInfo: React.FC<{text: string, link?: { internal?: boolean; 
         <a className={classes.link} href={props.link?.to} rel="noopener noreferrer" target="_blank">{props.link?.text ?? props.link?.to}</a>)
       );
 
+  let style: any = {};
+  if (props.in_container !== false) {
+    style['padding'] = "14px";
+  }
+
   return (
-    <CenterComponent className={classes.container}>
+    <CenterComponent className={classes.container} style={style}>
       <InfoIcon className={classes.icon} />
-      <Typography component="h6" className={classes.text}>
+      <Typography component="h6" className={classes.text} align="center">
         {t}
       </Typography>
       {link}

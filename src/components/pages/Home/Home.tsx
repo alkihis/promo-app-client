@@ -15,10 +15,10 @@ import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 const HomePage: React.FC = () => {
   return (
     <div className={classes.root}>
-      <AppBar position="relative">
+      <AppBar position="relative" style={{ backgroundColor: '#e88724' }}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Accueil
+            promos@bioinfo Lyon
           </Typography>
           {(!!SETTINGS.logged || SETTINGS.login_pending) ?
             <div>
@@ -44,20 +44,36 @@ const HomePage: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" className={classes.container}>
-        <div className={classes.mainlogoblock}>
-          <a href="https://www.bioinfo-lyon.fr/" className={classes.mainlogolink1} target="_blank" rel="noopener noreferrer">
-            <img src="/assets/bio-info.png" className={classes.mainlogo} alt="Logo master" />
-          </a>
-          <a href="/">
-            <img src="/assets/promo-app.png" className={classes.mainlogo} alt="Logo application" />
-          </a>
+      <div className={classes.color_header}>
+        <div className={classes.color_header_texts}>
+          <Typography variant="h2">
+            Suivi des promotions
+          </Typography>
+
+          <Typography variant="h4">
+            Master Bio-Informatique de Lyon
+          </Typography>
         </div>
 
-        <Marger size=".2rem" />
+        {(!!SETTINGS.logged || SETTINGS.login_pending) ?
+          <Link className={classes.button_login} to="/dashboard/">
+            <Button variant="outlined" color="primary">
+              Tableau de bord
+            </Button>
+          </Link>
+          : 
+          <Link className={classes.button_login} to="/login/">
+            <Button variant="outlined" color="primary">
+              Connectez-vous
+            </Button>
+          </Link>
+        }
+      </div>
 
-        <Typography variant="h5" className={classes.home_title} gutterBottom>
-          Suivi des promotions
+      <Container maxWidth="lg" className={classes.container}>
+      
+        <Typography variant="h4" className={classes.home_main_title} gutterBottom align="center">
+          Bienvenue
         </Typography>
         
         <Typography gutterBottom>
@@ -87,6 +103,17 @@ const HomePage: React.FC = () => {
         <CompanyMap />
 
         <DividerMargin size="1rem" />
+
+        <div className={classes.mainlogoblock}>
+          <a href="https://www.bioinfo-lyon.fr/" className={classes.mainlogolink1} target="_blank" rel="noopener noreferrer">
+            <img src="/assets/bio-info.png" className={classes.mainlogo} alt="Logo master" />
+          </a>
+          <a href="/">
+            <img src="/assets/promo-app.png" className={classes.mainlogo} alt="Logo application" />
+          </a>
+        </div>
+
+        <Marger size=".2rem" />
         
         <div className={classes.responsive_img_container}>
           <a href="http://lbbe.univ-lyon1.fr/" target="_blank" rel="noopener noreferrer">

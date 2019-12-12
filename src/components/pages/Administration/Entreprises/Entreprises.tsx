@@ -190,7 +190,7 @@ function ModalFusionCompany(props: {
 
       <DialogContent className={inMerge ? classes.in_load : ""}>
         <DialogContentText>
-          Les paramètres suivantes seront appliqués aux entreprises sélectionnées :
+          Les paramètres suivants seront appliqués aux entreprises sélectionnées :
         </DialogContentText>
         
         <DialogContentText>

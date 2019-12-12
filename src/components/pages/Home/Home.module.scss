@@ -3,14 +3,87 @@
 }
 .title {
   flex-grow: 1;
+  font-family: Montserrat !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
 }
 .container {
   margin-top: 1rem;
 }
+.color_header {
+  height: 30vh;
+  max-height: 300px;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  background: linear-gradient(#e88724, white);
+
+  text-align: center;
+  padding: 14px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+}
+.color_header_texts {
+  & > * {
+    font-family: Montserrat !important;
+    letter-spacing: -0.2rem !important;
+  }
+
+  h2 {
+    color: #691612 !important;
+  }
+
+  h4 {
+    color: #42270b !important;
+  }
+}
+
+.button_login {
+  button {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: 1rem;
+    font-weight: bold;
+
+    @media screen and (max-width: 600px) {
+      bottom: -1rem;
+    }
+
+    @media screen and (max-width: 500px) {
+      bottom: -3rem;
+    }
+  }
+  
+  transition: .3s;
+  text-decoration: none;
+}
+
 .home_title_main {
   text-align: center;
 }
-.home_title, .home_title_main {
+.home_main_title {
+  font-weight: 300 !important;
+  font-size: 2.5rem !important;
+
+  @media screen and (max-width: 600px) {
+    margin-top: 1.5rem !important;
+  }
+
+  @media screen and (max-width: 500px) {
+    margin-top: 4rem !important;
+  }
+}
+.home_title, .home_main_title, .home_title_main {
   color: rgb(58, 58, 58);
 }
 .mainlogoblock {
@@ -30,6 +103,7 @@
 }
 .mainlogo {
   max-height: 150px;
+  max-width: 100%;
 }
 .bioinfologo {
   max-width: 100%;

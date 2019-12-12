@@ -185,7 +185,7 @@ function ModalFusionFormation(props: {
 
       <DialogContent className={inMerge ? classes.in_load : ""}>
         <DialogContentText>
-          Les paramètres suivantes seront appliqués aux formations sélectionnées :
+          Les paramètres suivants seront appliqués aux formations sélectionnées :
         </DialogContentText>
         
         <DialogContentText>

@@ -47,7 +47,7 @@ const TeacherStats: React.FC = () => {
       .attr("viewBox", `0 0 ${height + margin.top} ${width + margin.left + margin.right}`)
       .attr("style", "max-width: 100%")
       .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")") as d3.Selection<SVGGElement, typeof data, HTMLElement, any>;
+      .attr("transform", "translate(" + (margin.left/2) + "," + margin.top + ")") as d3.Selection<SVGGElement, typeof data, HTMLElement, any>;
 
     // X axis
     const x = d3.scaleBand()
