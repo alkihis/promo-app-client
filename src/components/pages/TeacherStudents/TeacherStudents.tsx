@@ -595,7 +595,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
             </div>
 
             {/* Bouton modal options de filters */}
-            <StudentFindOptions onChange={this.handleFilterChange} />
+            <StudentFindOptions onChange={this.handleFilterChange} students={this.state.rows} />
           </div>
 
           <div className={classes.tableWrapper}>

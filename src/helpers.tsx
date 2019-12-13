@@ -263,6 +263,10 @@ export interface StudentFilters {
   have_next_formation?: boolean;
   /** Etudiants ayant une / en thèse */
   with_thesis?: boolean;
+  /** Etudiant avec un stage actuellement */
+  with_internship?: boolean;
+  /** Etudiant travaillant / ont travaillé (stage/emploi) dans une de ces entreprises */
+  in_companies?: string[];
 }
 export function studentSorter(students: Student[], filters: StudentFilters) {
   let i = -1;
@@ -314,6 +318,49 @@ export function studentSorter(students: Student[], filters: StudentFilters) {
       const at_work = !!s.jobs?.some(j => (j.to ?? null) === null);
 
       if (at_work !== filters.at_work) {
+        return false;
+      }
+    }
+
+    if (filters.with_internship !== undefined) {
+      const curr_date = new Date();
+      
+      // Si on est au moins en septembre
+      if (curr_date.getMonth() >= 8) {
+        // On cherche ceux avec un stage
+        if (filters.with_internship) {
+          return false;
+        }
+      }
+      else {
+        const curr_year = curr_date.getFullYear();
+  
+        const with_internship = !!s.internships?.some(i => +i.during === curr_year);
+  
+        if (with_internship !== filters.with_internship) {
+          return false;
+        }
+      }
+    }
+
+    if (filters.in_companies !== undefined) {
+      const companies_jobs = s.jobs?.map(j => j.company.name);
+      const curr_year = (new Date()).getFullYear();
+      const companies_internships = s.internships?.map(i => i.company.name);
+
+      const companies = (companies_jobs ?? []).concat(companies_internships ?? []);
+
+      const to_find = new Set(filters.in_companies);
+      
+      let found = false;
+      for (const c of companies) {
+        if (to_find.has(c)) {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
         return false;
       }
     }
