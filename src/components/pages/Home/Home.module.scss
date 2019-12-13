@@ -11,7 +11,7 @@
   margin-top: 1rem;
 }
 .color_header {
-  height: 30vh;
+  height: 17rem;
   max-height: 300px;
 
   width: 100%;
@@ -61,6 +61,10 @@
 
     @media screen and (max-width: 500px) {
       bottom: -3rem;
+    }
+
+    @media screen and (max-width: 400px) {
+      width: 75%;
     }
   }
   

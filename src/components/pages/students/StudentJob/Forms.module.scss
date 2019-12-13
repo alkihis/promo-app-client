@@ -27,6 +27,10 @@
   justify-content: flex-end;
 }
 
+.flex_center {
+  justify-content: center;
+}
+
 .grid_two_column {
   display: grid;
   grid-template-columns: 1fr 1fr;

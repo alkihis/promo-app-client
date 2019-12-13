@@ -27,6 +27,8 @@ type SIState = {
   entered_in_m1: boolean;
   graduated: boolean;
 
+  public: boolean;
+
   previous_formation?: Formation | null;
   next_formation?: Formation | null;
 
@@ -52,6 +54,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       modal_delete_previous: false,
       modal_delete_next: false,
       year_in: "2019",
+      public: false,
     };
   }
 
@@ -68,6 +71,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       email: etu.email,
       previous_formation: etu.previous_formation,
       next_formation: etu.next_formation,
+      public: etu.public,
     });
   }
 
@@ -80,6 +84,12 @@ export default class StudentInformations extends React.Component<RouteComponentP
   handleGraduatedChange = (_: any, checked: boolean) => {
     this.setState({
       graduated: checked
+    });
+  };
+
+  handlePublicChange = (_: any, checked: boolean) => {
+    this.setState({
+      public: checked
     });
   };
 
@@ -213,6 +223,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
           next_formation: this.state.next_formation?.id ?? null,
           graduated: this.state.graduated,
           user_id: this.context.id,
+          public: this.state.public,
         }
       });
 
@@ -243,6 +254,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       this.context.previous_formation = stu.previous_formation;
       this.context.graduated = stu.graduated;
       this.context.next_formation = stu.next_formation;
+      this.context.public = stu.public;
     } catch (e) {
       toast("Impossible de modifier vos informations: " + errorToText(e), "error");
       this.setState({
@@ -350,24 +362,42 @@ export default class StudentInformations extends React.Component<RouteComponentP
 
           {/* Autres informations */}
           <form onSubmit={this.submitForm}>
-            <Typography variant="h5" gutterBottom>
+            <Typography variant="h5">
               À propos de vous
+            </Typography>
+
+            <Typography variant="body2" gutterBottom>
+              En autorisant l'affichage de votre adresse e-mail aux autres étudiants,
+              celle-ci sera présente dans la liste de contacts étudiants de la carte des emplois,
+              visible sur la page d'accueil. 
             </Typography>
 
             <Marger size=".5rem" />
 
             {/* E-mail */}
-            <FormControl style={{ minWidth: '30%' }}>
-              <InputLabel htmlFor="email-input">Adresse e-mail</InputLabel>
-              <Input
-                type="email" 
-                id="email-input" 
-                required
-                startAdornment={<InputAdornment position="start">@</InputAdornment>}
-                value={this.state.email ?? ""}
-                onChange={this.handleMailChange}
+            <div className={classes.grid_two_column + " " + classes.gap}>
+              <FormControl>
+                <InputLabel htmlFor="email-input">Adresse e-mail</InputLabel>
+                <Input
+                  type="email" 
+                  id="email-input" 
+                  required
+                  startAdornment={<InputAdornment position="start">@</InputAdornment>}
+                  value={this.state.email ?? ""}
+                  onChange={this.handleMailChange}
+                />
+              </FormControl>
+
+              <FormControlLabel
+                className={classes.flex_center}
+                control={<Checkbox 
+                  checked={this.state.public} 
+                  onChange={this.handlePublicChange} 
+                  value="not-end"
+                  />}
+                label="Rendre mon e-mail visible"
               />
-            </FormControl>
+            </div>
 
             <Marger size="1rem" />
 

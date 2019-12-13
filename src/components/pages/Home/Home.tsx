@@ -147,6 +147,7 @@ interface MappedCompany {
 function CompanyMap() {
   const [companies, setCompanies] = React.useState<MappedCompany[] | undefined | number>(undefined);
   const [modalOpen, setModalOpen] = React.useState<MappedCompany | false>(false);
+  const [modalStudentOpen, setModalStudentOpen] = React.useState<MappedCompany | false>(false);
 
   React.useEffect(() => {
     const wait_prom = SETTINGS.login_promise ? SETTINGS.login_promise : Promise.resolve();
@@ -171,6 +172,7 @@ function CompanyMap() {
   return (
     <>
       {modalOpen && <ContactsOf company={modalOpen} onClose={() => setModalOpen(false)} />}
+      {modalStudentOpen && <StudentsOf company={modalStudentOpen} onClose={() => setModalStudentOpen(false)} />}
 
       <Map center={default_view} zoom={6} style={{ height: '40vh', minHeight: '400px' }}>
         <TileLayer
@@ -187,17 +189,157 @@ function CompanyMap() {
               {c.count} emploi{c.count > 1 ? "s" : ""} ici.
             </p>
 
-            {SETTINGS.logged ? <a 
+            {SETTINGS.logged ? <><a 
               href="#!" 
               className="link-blue" 
               onClick={() => setModalOpen(c)}
             >
               Voir les contacts disponibles ici
+            </a><br /></> : ""}
+
+            {SETTINGS.logged ? <a 
+              href="#!" 
+              className="link-blue" 
+              onClick={() => setModalStudentOpen(c)}
+            >
+              Voir les étudiants ayant travaillé ici
             </a> : ""}
           </Popup>
         </Marker>)}
       </Map>
     </>
+  );
+}
+
+interface SwallowStudentJobInfo {
+  student: {
+    name: string;
+    surname: string;
+    mail: string;
+  };
+  ended: boolean;
+  type: 'internship' | 'job';
+  company: string;
+}
+
+function StudentsOf(props: { company: MappedCompany, onClose: () => void }) {
+  const [infos, setInfos] = React.useState<SwallowStudentJobInfo[] | null | undefined>(undefined);
+
+  React.useEffect(() => {
+    setInfos(null);
+    if (infos === undefined) {
+      APIHELPER.request('student/in', { 
+        parameters: { 
+          town: props.company.town
+        } 
+      })
+        .then(setInfos)
+        .catch(notifyError);
+    }
+  }, [props]);
+
+  if (!infos) {
+    return (
+      <Dialog open fullWidth onClose={props.onClose}>
+        <DialogContent>
+          <BigPreloader style={{ marginTop: '10px', marginBottom: '25px' }} />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  const stages = infos.filter(i => i.type === 'internship');
+  
+  const emplois_en_cours = infos.filter(i => i.type === 'job' && !i.ended);
+  const emplois_termines = infos.filter(i => i.type === 'job' && i.ended);
+  
+  return (
+    <Dialog open scroll="body" fullWidth onClose={props.onClose}>
+      <DialogTitle>Étudiants ayant travaillé à {props.company.town.split(',')[0]}</DialogTitle>
+
+      <DialogContent>
+        {infos.length === 0 && <div>
+          <DialogContentText>Aucun étudiant n'a désiré partager ses coordonnées à cet emplacement.</DialogContentText>
+        </div>}
+
+        {!!infos.length && <>
+          <DialogContentText style={{ marginBottom: 0 }}>
+            {infos.length} étudiant{infos.length > 1 ? "s" : ""} {infos.length > 1 ? "ont" : "a"}{" "}
+            partagé {infos.length > 1 ? "leurs" : "ses"} coordonnées.
+          </DialogContentText>
+
+          <Marger size="0.5rem" />
+
+          {/* Emplois en cours */}
+          {!!emplois_en_cours.length && <div>
+            <Typography variant="h6">
+              Actuellement embauchés
+            </Typography>
+
+            <ListForStudents students={emplois_en_cours} />
+          </div>}
+
+          {/* Emplois passés */}
+          {!!emplois_termines.length && <div>
+            <Typography variant="h6">
+              Ont travaillé ici
+            </Typography>
+
+            <ListForStudents students={emplois_termines} />
+          </div>}
+
+          {/*  Stages */}
+          {!!stages.length && <div>
+            <Typography variant="h6">
+              Ont réalisé un stage ici
+            </Typography>
+
+            <ListForStudents students={stages} />
+          </div>}
+        </>}
+      </DialogContent>
+
+      <DialogActions>
+        <Button color="primary" onClick={props.onClose}>
+          Fermer
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function ListForStudents(props: { students: SwallowStudentJobInfo[] }) {
+  const infos = props.students;
+
+  return (
+    <List>
+      {infos.map((c, index) => <React.Fragment key={index}>
+        <ListItem className="no-left" alignItems="flex-start">
+          <ListItemAvatar>
+            <Avatar alt={c.student.name}>
+              {c.student.surname.slice(0, 1)}
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={c.company}
+            secondary={
+              <>
+                <Typography
+                  component="span"
+                  variant="body2"
+                  className={classes.inline}
+                  color="textPrimary"
+                >
+                  {c.student.mail}
+                </Typography>
+                {" — "}{c.student.surname + " " + c.student.name}
+              </>
+            }
+          />
+        </ListItem>
+        {index !== infos.length - 1 && <Divider variant="inset" component="li" />}
+      </React.Fragment>)}
+    </List>
   );
 }
 
