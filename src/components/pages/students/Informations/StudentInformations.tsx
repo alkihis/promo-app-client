@@ -28,6 +28,7 @@ type SIState = {
   graduated: boolean;
 
   public: boolean;
+  get_auto_mail: boolean;
 
   previous_formation?: Formation | null;
   next_formation?: Formation | null;
@@ -55,6 +56,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       modal_delete_next: false,
       year_in: "2019",
       public: false,
+      get_auto_mail: false,
     };
   }
 
@@ -72,6 +74,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       previous_formation: etu.previous_formation,
       next_formation: etu.next_formation,
       public: etu.public,
+      get_auto_mail: etu.get_auto_mail,
     });
   }
 
@@ -90,6 +93,12 @@ export default class StudentInformations extends React.Component<RouteComponentP
   handlePublicChange = (_: any, checked: boolean) => {
     this.setState({
       public: checked
+    });
+  };
+
+  handleGetAutoMailChange = (_: any, checked: boolean) => {
+    this.setState({
+      get_auto_mail: checked
     });
   };
 
@@ -224,6 +233,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
           graduated: this.state.graduated,
           user_id: this.context.id,
           public: this.state.public,
+          get_auto_mail: this.state.get_auto_mail,
         }
       });
 
@@ -241,6 +251,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
         previous_formation: stu.previous_formation,
         next_formation: stu.next_formation,
         graduated: stu.graduated,
+        get_auto_mail: stu.get_auto_mail,
         in_send: false
       });
 
@@ -255,6 +266,7 @@ export default class StudentInformations extends React.Component<RouteComponentP
       this.context.graduated = stu.graduated;
       this.context.next_formation = stu.next_formation;
       this.context.public = stu.public;
+      this.context.get_auto_mail = stu.get_auto_mail;
     } catch (e) {
       toast("Impossible de modifier vos informations: " + errorToText(e), "error");
       this.setState({
@@ -283,7 +295,6 @@ export default class StudentInformations extends React.Component<RouteComponentP
   };
 
   render() {
-    // TODO get available start & end year for this student
     const available_start_years: number[] = [];
     const current_year = (new Date()).getFullYear();
     for (let i = current_year; i >= 2015; i--) {
@@ -469,6 +480,14 @@ export default class StudentInformations extends React.Component<RouteComponentP
               <FormControlLabel
                 control={<Checkbox checked={this.state.entered_in_m1} onChange={this.handleEnteredM1Change} value="not-end" />}
                 label="Je suis entré•e dans le master en M1"
+              />
+            </div>
+
+            <div className={classes.center}>
+              {/* Recevoir mails automatiques */}
+              <FormControlLabel
+                control={<Checkbox checked={this.state.get_auto_mail} onChange={this.handleGetAutoMailChange} value="not-end" />}
+                label="Recevoir les demandes d'actualisation de mon profil"
               />
             </div>
 

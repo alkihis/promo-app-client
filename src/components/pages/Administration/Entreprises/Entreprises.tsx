@@ -154,6 +154,15 @@ const ModifyCompany: React.FC = () => {
         </ListItem>)}
       </List>
 
+      {mergeMode && <div className={classes.merge_buttons}>
+        <Button className="button-green" disabled={!selected.length} onClick={() => setModalFusion(true)}>
+          Fusionner
+        </Button>
+        <Button color="primary" onClick={() => { setMergeMode(false); setSelected([]); }}>
+          Annuler
+        </Button>
+      </div>}
+      
       {companies.length === 0 && <Typography variant="h6" color="textSecondary">
         Aucune entreprise n'est disponible.
       </Typography>}

@@ -13,6 +13,7 @@ export interface Student {
   internships?: Internship[];
   last_update: string; // Date
   public: boolean;
+  get_auto_mail: boolean;
 }
 export type PartialStudent = {
   jobs?: PartialJob[];

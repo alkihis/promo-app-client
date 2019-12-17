@@ -75,7 +75,12 @@ export default class AskCreationStudent extends React.Component<RouteComponentPr
         in_load: false,
       });
     } catch (e) {
-      notifyError(e);
+      if (Array.isArray(e) && APIHELPER.isApiError(e[1]) && e[1].code === 2) {
+        toast("Votre clé d'accès est invalide.", "error");
+      }
+      else {
+        notifyError(e);
+      }
 
       this.setState({
         in_load: false

@@ -44,3 +44,10 @@
 .grid_two_column.gap {
   row-gap: 1.5rem;
 }
+
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

@@ -113,7 +113,21 @@ export function errorToText(error: APIError | number | undefined | [any, APIErro
     case 15:
       return "Une date spécifiée est invalide.";
     case 16:
-      return "Cet élément existe déjà.";
+      return "Cet étudiant existe déjà.";
+    case 17:
+      return "L'e-mail saisi est invalide.";
+    case 18:
+      return "Ce domaine existe déjà.";
+    case 19:
+      return "Cette entreprise n'existe pas.";
+    case 20:
+      return "Cette formation n'existe pas.";
+    case 21:
+      return "Ce domaine n'existe pas.";
+    case 22:
+      return "Ce contact n'existe pas.";
+    case 23:
+      return "Cet étudiant n'existe pas.";
     default:
       return "Erreur inconnue.";
   }
