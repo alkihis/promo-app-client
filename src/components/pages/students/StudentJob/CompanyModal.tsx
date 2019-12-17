@@ -448,7 +448,7 @@ function TownAutoSelect(props: {
         const input_value = (document.querySelector('[data-town-select-id]') as HTMLInputElement).value;
         
         return options
-          .map(o => [o, Similarity.compareTwoStrings(input_value, o)] as [string, number])
+          .map(o => [o, Similarity.compareTwoStrings(input_value.split(',')[0], o.split(',')[0])] as [string, number])
           .sort((a, b) => b[1] - a[1])
           .map(o => o[0]);
       }}
@@ -498,7 +498,10 @@ function CompanyAutoSelect(props: {
         const input_value = state.inputValue;
         
         return options
-          .map(o => [o, Similarity.compareTwoStrings(input_value, o.name)] as [Company, number])
+          .map(o => [o, Similarity.compareTwoStrings(
+            input_value.split(',')[0].toLocaleLowerCase(), 
+            o.name.split(',')[0].toLocaleLowerCase()
+          )] as [Company, number])
           .sort((a, b) => b[1] - a[1])
           .map(o => o[0]);
       }}

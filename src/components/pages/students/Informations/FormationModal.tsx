@@ -427,7 +427,7 @@ function NameBranchAutoSelect(props: {
         const input_value = (document.querySelector('[data-formation-select-id]') as HTMLInputElement).value;
         
         return options
-          .map(o => [o, Similarity.compareTwoStrings(input_value, o)] as [string, number])
+          .map(o => [o, Similarity.compareTwoStrings(input_value.split(',')[0], o.split(',')[0])] as [string, number])
           .sort((a, b) => b[1] - a[1])
           .map(o => o[0]);
       }}
@@ -478,7 +478,7 @@ function LocationAutoSelect(props: {
         const input_value = (document.querySelector('[data-location-select-id]') as HTMLInputElement).value;
         
         return options
-          .map(o => [o, Similarity.compareTwoStrings(input_value, o)] as [string, number])
+          .map(o => [o, Similarity.compareTwoStrings(input_value.split(',')[0], o.split(',')[0])] as [string, number])
           .sort((a, b) => b[1] - a[1])
           .map(o => o[0]);
       }}
