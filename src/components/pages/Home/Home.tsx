@@ -5,7 +5,7 @@ import SETTINGS from '../../../Settings';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Dashboard from '@material-ui/icons/Dashboard';
 import { Link } from 'react-router-dom';
-import { DividerMargin, Marger, notifyError, BigPreloader } from '../../../helpers';
+import { DividerMargin, Marger, notifyError, BigPreloader, getMonthText } from '../../../helpers';
 import APIHELPER from '../../../APIHelper';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import Leaflet from 'leaflet';
@@ -202,7 +202,7 @@ function CompanyMap() {
               className="link-blue" 
               onClick={() => setModalStudentOpen(c)}
             >
-              Voir les étudiants ayant travaillé ici
+              Voir les étudiant•es ayant travaillé ici
             </a> : ""}
           </Popup>
         </Marker>)}
@@ -218,6 +218,7 @@ interface SwallowStudentJobInfo {
     mail: string;
   };
   ended: boolean;
+  related_date: string;
   type: 'internship' | 'job';
   company: string;
 }
@@ -236,6 +237,7 @@ function StudentsOf(props: { company: MappedCompany, onClose: () => void }) {
         .then(setInfos)
         .catch(notifyError);
     }
+  // eslint-disable-next-line
   }, [props]);
 
   if (!infos) {
@@ -248,50 +250,43 @@ function StudentsOf(props: { company: MappedCompany, onClose: () => void }) {
     );
   }
 
-  const stages = infos.filter(i => i.type === 'internship');
-  
-  const emplois_en_cours = infos.filter(i => i.type === 'job' && !i.ended);
-  const emplois_termines = infos.filter(i => i.type === 'job' && i.ended);
+  const stages = infos
+    .filter(i => i.type === 'internship')
+    .sort((j1, j2) => j1.company > j2.company ? 1 : (j1.company === j2.company ? 0 : -1));
+  const emplois = infos
+    .filter(i => i.type === 'job')
+    .sort((j1, j2) => j1.company > j2.company ? 1 : (j1.company === j2.company ? 0 : -1));
   
   return (
     <Dialog open scroll="body" fullWidth onClose={props.onClose}>
-      <DialogTitle>Étudiants ayant travaillé à {props.company.town.split(',')[0]}</DialogTitle>
+      <DialogTitle>Étudiant•es ayant travaillé à {props.company.town.split(',')[0]}</DialogTitle>
 
       <DialogContent>
         {infos.length === 0 && <div>
-          <DialogContentText>Aucun étudiant n'a désiré partager ses coordonnées à cet emplacement.</DialogContentText>
+          <DialogContentText>Aucun•e étudiant•e n'a désiré partager ses coordonnées à cet emplacement.</DialogContentText>
         </div>}
 
         {!!infos.length && <>
           <DialogContentText style={{ marginBottom: 0 }}>
-            {infos.length} étudiant{infos.length > 1 ? "s" : ""} {infos.length > 1 ? "ont" : "a"}{" "}
+            {infos.length} étudiant•e{infos.length > 1 ? "s" : ""} {infos.length > 1 ? "ont" : "a"}{" "}
             partagé {infos.length > 1 ? "leurs" : "ses"} coordonnées.
           </DialogContentText>
 
           <Marger size="0.5rem" />
 
           {/* Emplois en cours */}
-          {!!emplois_en_cours.length && <div>
+          {!!emplois.length && <div>
             <Typography variant="h6">
-              Actuellement embauchés
+              Embauches
             </Typography>
 
-            <ListForStudents students={emplois_en_cours} />
-          </div>}
-
-          {/* Emplois passés */}
-          {!!emplois_termines.length && <div>
-            <Typography variant="h6">
-              Ont travaillé ici
-            </Typography>
-
-            <ListForStudents students={emplois_termines} />
+            <ListForStudents students={emplois} />
           </div>}
 
           {/*  Stages */}
           {!!stages.length && <div>
             <Typography variant="h6">
-              Ont réalisé un stage ici
+              Stagiaires
             </Typography>
 
             <ListForStudents students={stages} />
@@ -311,33 +306,69 @@ function StudentsOf(props: { company: MappedCompany, onClose: () => void }) {
 function ListForStudents(props: { students: SwallowStudentJobInfo[] }) {
   const infos = props.students;
 
+  const companies: { [name: string]: SwallowStudentJobInfo[] } = {};
+
+  for (const s of infos) {
+    if (s.company in companies) {
+      companies[s.company].push(s);
+    }
+    else {
+      companies[s.company] = [s];
+    }
+  }
+
+  const cp_len = Object.keys(companies).length;
+
+  function dateForStudent(s: SwallowStudentJobInfo) {
+    if (s.type === "internship") {
+      return s.related_date;
+    }
+    else {
+      if (s.ended) {
+        const [year, month, ] = s.related_date.split('-');
+        return `jusqu'en ${getMonthText(month)?.toLocaleLowerCase()} ${year}`;
+      }
+      else {
+        const [year, month, ] = s.related_date.split('-');
+        return `depuis ${getMonthText(month)?.toLocaleLowerCase()} ${year}`;
+      }
+    }
+  }
+
   return (
     <List>
-      {infos.map((c, index) => <React.Fragment key={index}>
+      {Object.entries(companies).map(([c, s], index) => <React.Fragment key={index}>
         <ListItem className="no-left" alignItems="flex-start">
           <ListItemAvatar>
-            <Avatar alt={c.student.name}>
-              {c.student.surname.slice(0, 1)}
+            <Avatar alt={c}>
+              {c.slice(0, 1)}
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary={c.company}
-            secondary={
-              <>
-                <Typography
-                  component="span"
-                  variant="body2"
-                  className={classes.inline}
-                  color="textPrimary"
-                >
-                  {c.student.mail}
-                </Typography>
-                {" — "}{c.student.surname + " " + c.student.name}
-              </>
-            }
+            disableTypography
+            primary={<Typography>
+              {c}
+            </Typography>}
+            secondary={s.map((st, index) => <Typography 
+              variant="body2" 
+              color="textSecondary" 
+              key={index} 
+              className={classes.inline_company}
+            >
+              <Typography
+                component="span"
+                variant="body2"
+                className={classes.inline}
+                color="textPrimary"
+              >
+                {st.student.mail}
+              </Typography>
+              {" — "}{st.student.surname + " " + st.student.name}
+              {" ("}{dateForStudent(st)}{")"}
+            </Typography>)}
           />
         </ListItem>
-        {index !== infos.length - 1 && <Divider variant="inset" component="li" />}
+        {index !== cp_len - 1 && <Divider variant="inset" component="li" />}
       </React.Fragment>)}
     </List>
   );

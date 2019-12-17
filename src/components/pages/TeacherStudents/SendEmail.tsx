@@ -39,10 +39,16 @@ const useStyles = makeStyles(theme =>
   }),
 );
 
-const ModalSendEmail: React.FC<{ open: boolean, onClose?: () => void, mails: Student[] }> = props => {
+const ModalSendEmail: React.FC<{ 
+  open: boolean, 
+  onClose?: () => void, 
+  mails: Student[], 
+  base?: string, 
+  base_object?: string 
+}> = props => {
   const classes = useStyles();
-  const [value, setValue] = React.useState("");
-  const [obj, setObject] = React.useState("");
+  const [value, setValue] = React.useState(props.base ?? "");
+  const [obj, setObject] = React.useState(props.base_object ?? "");
   const [willsend, setWillsend] = React.useState(false);
   const [insend, setInsend] = React.useState(false);
   const [selected, setSelected] = React.useState(props.mails);

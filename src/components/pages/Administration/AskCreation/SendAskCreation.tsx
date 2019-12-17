@@ -25,21 +25,54 @@ export default class SendAskCreationStudent extends React.Component<RouteCompone
       in_load: true
     });
 
+    let failed = 0;
+    let done = 0;
     try {
       for (const email of this.state.email.split(',')) {
-        await APIHELPER.request('ask_creation/create', {
-          method: 'POST',
-          parameters: {
-            mail: email.trim(),
+        try {
+          await APIHELPER.request('ask_creation/create', {
+            method: 'POST',
+            parameters: {
+              mail: email.trim(),
+            }
+          });
+          done++;
+        } catch (e) {
+          if (Array.isArray(e) && APIHELPER.isApiError(e[1])) {
+            if (e[1].code === 11) {
+              // CONFLICT
+              failed++;
+            }
+            else {
+              // Autre erreur, inattendue
+              throw e;
+            }
           }
-        });
+        }
       }
 
-      if (this.state.email.split(',').length > 1) {
-        toast("Les demandes de création de compte ont été envoyées.", "success");
+      if (!failed) {
+        if (done > 1) {
+          toast("Les demandes de création de compte ont été envoyées.", "success");
+        }
+        else {
+          toast("La demande de création de compte a été envoyée.", "success");
+        }
       }
       else {
-        toast("La demande de création de compte a été envoyée.", "success");
+        if (done > 1) {
+          toast(String(done) + " demandes de création de compte ont été envoyées.", "success");
+        }
+        else if (done) {
+          toast("Une demande de création de compte a été envoyée.", "success");
+        }
+        
+        if (failed > 1) {
+          toast(String(failed) + " e-mails n'ont pas été envoyés : les adresses e-mail existent déjà en base de données.", "info");
+        }
+        else {
+          toast("Un e-mail n'a pas été envoyé : l'adresse e-mail existe déjà en base de données.", "error");
+        }
       }
 
       this.setState({

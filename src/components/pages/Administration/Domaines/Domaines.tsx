@@ -100,7 +100,7 @@ const ModifyDomains: React.FC = () => {
       <List className={classes.lists_item}>
         {/* List of contacts available */}
         {domains.map(c => <ListItem key={c.id}>
-          <ListItemText primary={c.name} secondary={c.domain} />
+          <ListItemText primary={c.name} />
 
           {c.domain !== "other" && <ListItemSecondaryAction>
             <IconButton edge="end" onClick={evt => setModalSelectionEdit([c.id, evt.currentTarget])}>
@@ -185,7 +185,6 @@ type CMProps = {
 type CMState = {
   in_load: boolean;
   full_name: string;
-  name: string;
 };
 
 // Returned by make confirm is a unsended contact (id=0) to create or a already created (id>0)
@@ -194,7 +193,6 @@ class DomainModal extends React.Component<CMProps, CMState> {
     super(props);
 
     this.state = {
-      name: "",
       full_name: "",
       in_load: false
     };
@@ -208,7 +206,6 @@ class DomainModal extends React.Component<CMProps, CMState> {
     if (this.props.open !== old_props.open) {
       // Reset
       this.setState({
-        name: "",
         full_name: "",
       });
 
@@ -223,7 +220,6 @@ class DomainModal extends React.Component<CMProps, CMState> {
       const b = this.props.base;
 
       this.setState({
-        name: b.domain,
         full_name: b.name
       });
     }
@@ -237,7 +233,7 @@ class DomainModal extends React.Component<CMProps, CMState> {
       in_load: true
     });
 
-    if (!this.state.name || !this.state.full_name) {
+    if (!this.state.full_name) {
       this.setState({
         in_load: false
       });
@@ -249,7 +245,7 @@ class DomainModal extends React.Component<CMProps, CMState> {
     let domain: FullDomain = {
       id: this.props.base?.id ?? 0,
       name: this.state.full_name,
-      domain: this.state.name
+      domain: this.state.full_name
     };
 
     try {
@@ -280,13 +276,6 @@ class DomainModal extends React.Component<CMProps, CMState> {
     });
   };
 
-  handleNameChange = (evt: any) => {
-    const name = evt.target.value;
-    this.setState({
-      name
-    });
-  };
-
   render() {
     return (
       <Dialog
@@ -310,17 +299,6 @@ class DomainModal extends React.Component<CMProps, CMState> {
               fullWidth
               variant="outlined"
               type="mail"
-            />
-
-            <Marger size=".5rem" />
-
-            <TextField
-              value={this.state.name}
-              onChange={this.handleNameChange}
-              variant="outlined"
-              fullWidth
-              required
-              label="Nom interne (enregistré en base SQL)"
             />
           </DialogContent>
           <DialogActions>

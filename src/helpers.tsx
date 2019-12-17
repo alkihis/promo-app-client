@@ -104,6 +104,16 @@ export function errorToText(error: APIError | number | undefined | [any, APIErro
       return "Des paramètres nécessaires à la requête ne sont pas présents.";
     case 11:
       return "Cet élément existe déjà.";
+    case 12:
+      return "Un champ précisé dans le formulaire n'est pas valide.";
+    case 13:
+      return "Une donnée spécifiée dans le formulaire n'a pas le bon type.";
+    case 14:
+      return "Vous avez essayé d'enregistrer une valeur incorrecte dans un sélecteur de choix.";
+    case 15:
+      return "Une date spécifiée est invalide.";
+    case 16:
+      return "Cet élément existe déjà.";
     default:
       return "Erreur inconnue.";
   }

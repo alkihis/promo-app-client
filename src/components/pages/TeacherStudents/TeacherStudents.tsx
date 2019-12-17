@@ -10,17 +10,18 @@ import TableRow from '@material-ui/core/TableRow';
 import { DashboardContainer } from '../../shared/Dashboard/Dashboard';
 import { Student, PartialStudent, Company, PartialJob, PartialInternship } from '../../../interfaces';
 import APIHELPER from '../../../APIHelper';
-import { BigPreloader, ClassicModal, studentSorter, Marger, StudentFilters, notifyError } from '../../../helpers';
+import { BigPreloader, ClassicModal, studentSorter, Marger, StudentFilters } from '../../../helpers';
 import { toast } from '../../shared/Toaster/Toaster';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Link } from 'react-router-dom';
-import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent, MenuItem, Menu, DialogTitle, DialogContentText, Hidden } from '@material-ui/core';
+import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent, MenuItem, Menu, Hidden } from '@material-ui/core';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import StudentFindOptions from './StudentFindOptions';
 import ModalSendEmail from './SendEmail';
 import { BASE_API_URL } from '../../../constants';
 import SETTINGS from '../../../Settings';
+import { LOGIN_EMAIL_TEMPLATE, REFRESH_PROFILE_TEMPLATE } from '../../../mails';
 
 type TSState = {
   page: number;
@@ -32,9 +33,7 @@ type TSState = {
   checked: Set<number>;
   search_text: string;
   modal_email_select: string | false;
-  modal_send_mail: Student[] | false;
-  modal_send_login_mail: Student[] | false;
-  modal_send_refresh_mail: Student[] | false;
+  modal_send_mail: [Student[], string|undefined, string|undefined] | false;
 
   menu_select_which_mail: HTMLElement | false;
 }
@@ -49,8 +48,6 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     search_text: "",
     modal_email_select: false,
     modal_send_mail: false,
-    modal_send_login_mail: false,
-    modal_send_refresh_mail: false,
     menu_select_which_mail: false,
   };
 
@@ -300,7 +297,9 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
     return (
       !!this.state.modal_send_mail && <ModalSendEmail 
         open={true} 
-        mails={this.state.modal_send_mail} 
+        mails={this.state.modal_send_mail[0]} 
+        base={this.state.modal_send_mail[1]} 
+        base_object={this.state.modal_send_mail[2]}
         onClose={() => this.setState({ modal_send_mail: false })}
       />
     );
@@ -342,28 +341,6 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
         </> : ""}
       </Dialog>
     );
-  }
-
-  modalSendLoginEmail() {
-    return <ModalAskLoginEmail 
-      students={this.state.modal_send_login_mail as Student[]}
-      onClose={() => this.setState({ modal_send_login_mail: false })}
-      onSuccess={() => {
-        this.uncheckAll();
-        this.setState({ modal_send_login_mail: false })
-      }}
-    />
-  }
-
-  modalSendRefreshDataEmail() {
-    return <ModalRefreshDataEmail 
-      students={this.state.modal_send_refresh_mail as Student[]}
-      onClose={() => this.setState({ modal_send_refresh_mail: false })}
-      onSuccess={() => {
-        this.uncheckAll();
-        this.setState({ modal_send_refresh_mail: false })
-      }}
-    />
   }
 
   renderRow = (row: Student) => {
@@ -467,19 +444,19 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
           >
             <MenuItem 
               onClick={() => this.setState({ 
-                modal_send_login_mail: this.selected_students, 
+                modal_send_mail: [this.selected_students, LOGIN_EMAIL_TEMPLATE, "Connexion à l'application de suivi des promotions"], 
                 menu_select_which_mail: false
               })}
             >E-mail de connexion au profil</MenuItem>
             <MenuItem 
               onClick={() => this.setState({ 
-                modal_send_refresh_mail: this.selected_students, 
+                modal_send_mail: [this.selected_students, REFRESH_PROFILE_TEMPLATE, "Actualisation de votre profil - Suivi des promotions du Master Bio-Informatique"], 
                 menu_select_which_mail: false
               })}
             >E-mail d'actualisation du profil</MenuItem>
             <MenuItem
               onClick={() => this.setState({ 
-                modal_send_mail: this.selected_students, 
+                modal_send_mail: [this.selected_students, undefined, undefined], 
                 menu_select_which_mail: false
               })}
             >E-mail personnalisé</MenuItem>
@@ -572,9 +549,6 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
 
         {this.selectedInformations()}
 
-        {this.state.modal_send_login_mail && this.modalSendLoginEmail()}
-        {this.state.modal_send_refresh_mail && this.modalSendRefreshDataEmail()}
-
         <Marger size=".5rem" />
 
         <Hidden>
@@ -645,92 +619,3 @@ const columns: Column[] = [
   { id: 'graduated', label: 'Diplômé', minWidth: 50, format: (v: boolean) => v ? "Oui" : "Non" },
   { id: 'email', label: 'E-mail', minWidth: 230 },
 ];
-
-const ModalSendMailBase = (props: {
-  students: Student[],
-  onClose: () => void,
-  onSuccess: () => void,
-  onDeleteRequest: (students: Student[]) => Promise<any>,
-  text: string
-}) => {
-  const [inSend, setInSend] = React.useState(false);
-
-  function sendRequest() {
-    if (inSend) {
-      return;
-    }
-
-    setInSend(true);
-
-    props.onDeleteRequest(props.students)
-      .then(() => {
-        setInSend(false);
-        toast("Les messages ont été envoyés", "success");
-        props.onSuccess();
-      })
-      .catch(e => {
-        notifyError(e);
-        setInSend(false);
-      });
-  }
-
-  return (
-    <Dialog open onClose={props.onClose}>
-      <DialogTitle>Envoyer ces e-mails ?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Les étudiants sélectionnés recevront un e-mail {props.text}.
-            Voulez-vous continuer ?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.onClose} color="secondary" autoFocus>
-            Annuler
-          </Button>
-          <Button onClick={sendRequest} color="primary">
-            Confirmer
-          </Button>
-        </DialogActions>
-    </Dialog>
-  );
-};
-
-const ModalRefreshDataEmail = (props: { students: Student[], onClose: () => void, onSuccess: () => void }) => {
-  return <ModalSendMailBase
-    students={props.students}
-    onClose={props.onClose}
-    onSuccess={props.onSuccess}
-    onDeleteRequest={students => APIHELPER.request('student/ask_refresh', {
-      method: 'POST',
-      parameters: {
-        ids: students.map(e => e.id)
-      }
-    })}
-    text="leur demandant de rafraîchir leur profil"
-  />;
-};
-
-const ModalAskLoginEmail = (props: { students: Student[], onClose: () => void, onSuccess: () => void }) => {
-  return <ModalSendMailBase
-    students={props.students}
-    onClose={props.onClose}
-    onSuccess={props.onSuccess}
-    onDeleteRequest={students => {
-      const promises: Promise<any>[] = [];
-
-      for (const student of students) {
-        promises.push(
-          APIHELPER.request('student/lost_token', {
-            method: 'GET',
-            parameters: {
-              email: student.email
-            }
-          })
-        );
-      }
-      
-      return Promise.all(promises);
-    }}
-    text="leur demandant de se connecter"
-  />;
-};

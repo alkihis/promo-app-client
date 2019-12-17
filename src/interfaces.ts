@@ -76,6 +76,7 @@ export const JobTypes = {
   cdd: "CDD", 
   alternance: "Alternance",
   these: "Thèse",
+  other: 'Autre',
 };
 export type JobType = keyof typeof JobTypes;
 
@@ -84,6 +85,7 @@ export const JobLevels = {
   ingenieur: "Ingénieur", 
   doctorant: "Doctorant",
   alternant: "Alternant",
+  other: 'Autre',
 };
 export type JobLevel = keyof typeof JobLevels;
 
