@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge, Grid, Select, FormControl, InputLabel, MenuItem, Dialog, DialogContent, IconButton, DialogActions, Button, DialogTitle, Input, useTheme } from "@material-ui/core";
 import FilterIcon from '@material-ui/icons/FilterList';
-import classes from './StudentFindOptions.module.scss';
+import classes from './FindOptions.module.scss';
 import { StudentFilters } from '../../../../../utils/helpers';
 import { toast } from '../../../../shared/Toaster/Toaster';
 import { Student } from '../../../../../interfaces';
@@ -19,7 +19,7 @@ function generateYearSince(year: string | number) {
   return years;
 }
 
-const StudentFindOptions: React.FC<{ onChange?: (filters: StudentFilters) => void, students: Student[] | undefined }> = props => {
+const FindOptions: React.FC<{ onChange?: (filters: StudentFilters) => void, students: Student[] | undefined }> = props => {
   const [graduated, setGraduated] = React.useState('undefined');
   const [yearIn, setYearIn] = React.useState('undefined');
   const [yearOut, setYearOut] = React.useState('undefined');
@@ -358,4 +358,4 @@ const StudentFindOptions: React.FC<{ onChange?: (filters: StudentFilters) => voi
   );
 };
 
-export default StudentFindOptions;
+export default FindOptions;

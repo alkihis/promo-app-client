@@ -3,7 +3,7 @@ import Dashboard, { DrawerSection, DashboardDrawer } from '../../../shared/Dashb
 import SETTINGS from '../../../../utils/Settings';
 import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import { Location } from 'history';
-import TeacherStudents from '../Students/TeacherStudents';
+import Students from '../Students/Students';
 import AddStudent from '../AddStudent/AddStudent';
 import LogoutIcon from '@material-ui/icons/Block';
 import StudentIcon from '@material-ui/icons/People';
@@ -17,7 +17,7 @@ import AskCreationIcon from '@material-ui/icons/ContactMail';
 import { ClassicModal } from '../../../../utils/helpers';
 import ModifyCompany from '../Entreprises/Entreprises';
 import ModifyContacts from '../Entreprises/ContactEdit';
-import SendAskCreation from '../AskCreation/SendAskCreation';
+import SendAskCreation from '../SendAskCreation/SendAskCreation';
 import ModifyFormation from '../Formations/Formations';
 import ModifyDomains from '../Domaines/Domaines';
 import TeacherStats from '../Stats/Stats';
@@ -133,7 +133,7 @@ const TeacherPage: React.FC = () => {
           All data for student, selector for student (sort information, deletion...)
           And mail send
         */}
-        <Route path={`${match.path}student/all`} component={TeacherStudents} />
+        <Route path={`${match.path}student/all`} component={Students} />
 
         {/** Add a new student (enter basic informations about him/her). */}
         <Route path={`${match.path}student/add`} component={AddStudent} />

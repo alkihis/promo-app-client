@@ -9,59 +9,59 @@ import TeacherStudentWrapper from '../pages/Teacher/StudentWrapper/TeacherStuden
 import SignIn from '../pages/Login/Login';
 import LostToken from '../pages/LostToken/LostToken';
 import DashboardWrapper from '../shared/DashboardWrapper/DashboardWrapper';
-import AskCreationStudent from '../pages/Teacher/AskCreation/AskCreation';
+import AskCreationStudent from '../pages/AskCreation/AskCreation';
 
-export default class AppRouter extends React.Component {
-  render() {
-    return (
-      <Router>
-        <Switch>
-          {/** Autoredirect for dashboard (teacher & student) */}
-          <Route path="/dashboard/" exact component={DashboardWrapper} />
+const AppRouter = () => {
+  return (
+    <Router>
+      <Switch>
+        {/** Autoredirect for dashboard (teacher & student) */}
+        <Route path="/dashboard/" exact component={DashboardWrapper} />
 
-          {/** Account creation */}
-          <Route path="/profile_create" exact component={AskCreationStudent} /> 
+        {/** Account creation */}
+        <Route path="/profile_create" exact component={AskCreationStudent} /> 
 
-          {/** 
-            Show student information 
-            Should be same page as /student, but with a selected specific student
-            and more options (data that are not modifiable for students)
+        {/** 
+          Show student information 
+          Should be same page as /student, but with a selected specific student
+          and more options (data that are not modifiable for students)
+        */}
+        <Route path={`/teacher/dashboard/:id/`} render={
+          (props: RouteComponentProps) => <TeacherWrapper component={TeacherStudentWrapper} {...props} />
+        } />
+
+        {/** Show teacher home page
+          Dashboard with stats (maybe), available students,
+          map for companies, group mailing...
           */}
-          <Route path={`/teacher/dashboard/:id/`} render={
-            (props: RouteComponentProps) => <TeacherWrapper component={TeacherStudentWrapper} {...props} />
-          } />
+        <Route path="/teacher/" render={
+          (props: RouteComponentProps) => <TeacherWrapper component={TeacherPage} {...props} />
+        } />  
 
-          {/** Show teacher home page
-            Dashboard with stats (maybe), available students,
-            map for companies, group mailing...
-           */}
-          <Route path="/teacher/" render={
-            (props: RouteComponentProps) => <TeacherWrapper component={TeacherPage} {...props} />
-          } />  
+        {/** 
+          Student page (for student)
+          Dashboard for current logged user.
 
-          {/** 
-            Student page (for student)
-            Dashboard for current logged user.
+          Everything modifiable should be in a modal. (re-use for /teacher/dashboard/:id)
+          */}
+        <Route path="/student/" render={
+          (props: RouteComponentProps) => <StudentWrapper component={StudentSelfHome} {...props} />
+        } />  
 
-            Everything modifiable should be in a modal. (re-use for /teacher/dashboard/:id)
-           */}
-          <Route path="/student/" render={
-            (props: RouteComponentProps) => <StudentWrapper component={StudentSelfHome} {...props} />
-          } />  
+        {/** 
+          Home page: Show statistics, map for companies.
+          */}
+        <Route path="/" exact component={HomePage} />
 
-          {/** 
-            Home page: Show statistics, map for companies.
-           */}
-          <Route path="/" exact component={HomePage} />
+        <Route path="/login/" component={SignIn} />
 
-          <Route path="/login/" component={SignIn} />
+        <Route path="/mail_login/" component={LostToken} />
 
-          <Route path="/mail_login/" component={LostToken} />
-
-          {/* Not Found page. */}
-          <Route component={NotFound} />
-        </Switch>
-      </Router>
-    );
-  }
+        {/* Not Found page. */}
+        <Route component={NotFound} />
+      </Switch>
+    </Router>
+  );
 }
+
+export default AppRouter;

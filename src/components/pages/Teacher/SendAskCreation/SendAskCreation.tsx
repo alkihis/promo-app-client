@@ -1,5 +1,5 @@
 import React from 'react';
-import classes from './AskCreation.module.scss';
+import classes from '../../AskCreation/AskCreation.module.scss';
 import { Typography, TextField, Button, CircularProgress } from '@material-ui/core';
 import APIHELPER from '../../../../utils/APIHelper';
 import { toast } from '../../../shared/Toaster/Toaster';

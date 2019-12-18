@@ -1,5 +1,5 @@
 import React from 'react';
-import classes from './TeacherStudents.module.scss';
+import classes from './Students.module.scss';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,7 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { Link } from 'react-router-dom';
 import { IconButton, Checkbox, Button, TextField, Dialog, DialogActions, DialogContent, MenuItem, Menu, Hidden } from '@material-ui/core';
 import EmbeddedError from '../../../shared/EmbeddedError/EmbeddedError';
-import StudentFindOptions from './FindOptions/StudentFindOptions';
+import FindOptions from './FindOptions/FindOptions';
 import ModalSendEmail from './SendEmail/SendEmail';
 import { BASE_API_URL } from '../../../../constants';
 import SETTINGS from '../../../../utils/Settings';
@@ -38,7 +38,7 @@ type TSState = {
   menu_select_which_mail: HTMLElement | false;
 }
 
-export default class TeacherStudents extends React.Component<{}, TSState> {
+export default class Students extends React.Component<{}, TSState> {
   state: TSState = {
     page: 0,
     rows_count: 25,
@@ -569,7 +569,7 @@ export default class TeacherStudents extends React.Component<{}, TSState> {
             </div>
 
             {/* Bouton modal options de filters */}
-            <StudentFindOptions onChange={this.handleFilterChange} students={this.state.rows} />
+            <FindOptions onChange={this.handleFilterChange} students={this.state.rows} />
           </div>
 
           <div className={classes.tableWrapper}>

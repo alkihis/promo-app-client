@@ -1,13 +1,13 @@
 import React from 'react';
 import classes from './AskCreation.module.scss';
 import { Typography, TextField, Checkbox, FormControlLabel, FormControl, InputLabel, Select, MenuItem, Button, CircularProgress, Container } from '@material-ui/core';
-import APIHELPER from '../../../../utils/APIHelper';
-import { Student } from '../../../../interfaces';
-import { toast } from '../../../shared/Toaster/Toaster';
-import { notifyError } from '../../../../utils/helpers';
+import APIHELPER from '../../../utils/APIHelper';
+import { Student } from '../../../interfaces';
+import { toast } from '../../shared/Toaster/Toaster';
+import { notifyError } from '../../../utils/helpers';
 import { RouteComponentProps } from 'react-router-dom';
 import QueryString from 'query-string';
-import { FullError } from '../../../shared/EmbeddedError/EmbeddedError';
+import { FullError } from '../../shared/EmbeddedError/EmbeddedError';
 
 type ACState = {
   surname: string;
