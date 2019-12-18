@@ -1,7 +1,7 @@
 import React from 'react';
 import LoginWrapper from '../LoginWrapper/LoginWrapper';
 import { Redirect, RouteComponentProps } from 'react-router-dom';
-import SETTINGS, { LoggedLevel } from '../../../Settings';
+import SETTINGS, { LoggedLevel } from '../../../utils/Settings';
 
 // Automatic redirect to teacher dashboard or student dashboard
 const DashboardWrapper: React.FC<RouteComponentProps> = props => {

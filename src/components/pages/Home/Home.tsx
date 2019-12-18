@@ -1,12 +1,12 @@
 import React from 'react';
 import classes from './Home.module.scss';
 import { AppBar, Toolbar, IconButton, Typography, Container, Dialog, DialogTitle, DialogContent, DialogActions, Button, ListItem, List, DialogContentText, ListItemAvatar, Avatar, ListItemText, Divider } from '@material-ui/core';
-import SETTINGS from '../../../Settings';
+import SETTINGS from '../../../utils/Settings';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Dashboard from '@material-ui/icons/Dashboard';
 import { Link } from 'react-router-dom';
-import { DividerMargin, Marger, notifyError, BigPreloader, getMonthText } from '../../../helpers';
-import APIHELPER from '../../../APIHelper';
+import { DividerMargin, Marger, notifyError, BigPreloader, getMonthText } from '../../../utils/helpers';
+import APIHELPER from '../../../utils/APIHelper';
 import EmbeddedError from '../../shared/EmbeddedError/EmbeddedError';
 import Leaflet from 'leaflet';
 import { FullContact } from '../../../interfaces';

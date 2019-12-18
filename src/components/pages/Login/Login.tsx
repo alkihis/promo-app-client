@@ -14,7 +14,7 @@ import { RouteComponentProps, Link as RouterLink } from 'react-router-dom';
 import QueryString from 'query-string';
 import { CircularProgress } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
-import SETTINGS, { LoggedLevel } from '../../../Settings';
+import SETTINGS, { LoggedLevel } from '../../../utils/Settings';
 import LoginWrapper from '../../shared/LoginWrapper/LoginWrapper';
 
 function Copyright() {

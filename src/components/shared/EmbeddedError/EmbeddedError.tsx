@@ -1,6 +1,6 @@
 import React from 'react';
-import { APIError } from '../../../APIHelper';
-import { CenterComponent, errorToText } from '../../../helpers';
+import { APIError } from '../../../utils/APIHelper';
+import { CenterComponent, errorToText } from '../../../utils/helpers';
 import ErrorIcon from '@material-ui/icons/ErrorOutline';
 import InfoIcon from '@material-ui/icons/InfoOutlined';
 import classes from './EmbeddedError.module.scss';

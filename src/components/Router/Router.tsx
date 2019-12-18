@@ -2,15 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch, RouteComponentProps } from "react-router-dom";
 import NotFound from '../pages/NotFound/NotFound';
 import HomePage from '../pages/Home/Home';
-import TeacherPage from '../pages/TeacherHome/Teacher';
-import RouterWrapper from './RouterWrapper';
-import { StudentWrapper, StudentSelfHome } from '../pages/StudentHome/StudentHome';
+import TeacherPage from '../pages/Teacher/Dashboard/Dashboard';
+import {StudentSelfHome, StudentWrapper} from "../pages/Student/Dashboard/Dashboard";
 import TeacherWrapper from '../shared/TeacherWrapper/TeacherWrapper';
-import TeacherStudentWrapper from '../pages/TeacherStudents/TeacherStudentWrapper';
+import TeacherStudentWrapper from '../pages/Teacher/StudentWrapper/TeacherStudentWrapper';
 import SignIn from '../pages/Login/Login';
-import LostToken from '../pages/Login/LostToken';
+import LostToken from '../pages/LostToken/LostToken';
 import DashboardWrapper from '../shared/DashboardWrapper/DashboardWrapper';
-import AskCreationStudent from '../pages/Administration/AskCreation/AskCreation';
+import AskCreationStudent from '../pages/Teacher/AskCreation/AskCreation';
 
 export default class AppRouter extends React.Component {
   render() {
@@ -62,7 +61,6 @@ export default class AppRouter extends React.Component {
           {/* Not Found page. */}
           <Route component={NotFound} />
         </Switch>
-        <RouterWrapper />
       </Router>
     );
   }

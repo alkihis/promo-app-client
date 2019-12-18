@@ -1,7 +1,7 @@
 import React from 'react';
-import SETTINGS, { LoggedLevel } from '../../../Settings';
+import SETTINGS, { LoggedLevel } from '../../../utils/Settings';
 import { RouteComponentProps } from 'react-router-dom';
-import { BigPreloader } from '../../../helpers';
+import { BigPreloader } from '../../../utils/helpers';
 import { FullError } from '../EmbeddedError/EmbeddedError';
 
 export type AllowedLoginState = "none" | "progress" | "student" | "teacher" | "error";
@@ -29,7 +29,7 @@ export default class LoginWrapper extends React.Component<LWProps> {
   constructor(props: LWProps) {
     super(props);
 
-    let is_logged: boolean | null = null;
+    let is_logged: boolean | null;
     if (SETTINGS.logged) {
       is_logged = true;
     }
