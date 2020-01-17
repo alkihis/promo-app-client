@@ -138,8 +138,12 @@ export default class AskCreationStudent extends React.Component<RouteComponentPr
 
     return (
       <Container style={{ marginTop: '2rem' }}>
-        <Typography variant="h4">
+        <Typography variant="h4" gutterBottom>
           Nouveau profil étudiant
+        </Typography>
+
+        <Typography color="textSecondary">
+          L'adresse e-mail à spécifier est votre adresse personnelle, que vous conservez après l'Université.
         </Typography>
 
         {!this.state.created && <form className={classes.form} onSubmit={this.create}>

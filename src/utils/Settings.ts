@@ -105,6 +105,7 @@ class Settings {
     }
     else {
       localStorage.setItem('user', JSON.stringify(student));
+      this._user_object = student;
       this.token = token!;
     }
   }

@@ -6,6 +6,7 @@ import APIHELPER from '../../../../utils/APIHelper';
 import { Student } from '../../../../interfaces';
 import { toast } from '../../../shared/Toaster/Toaster';
 import { notifyError } from '../../../../utils/helpers';
+import { Link } from 'react-router-dom';
 
 type ASState = {
   surname: string;
@@ -112,8 +113,16 @@ export default class AddStudent extends React.Component<{}, ASState> {
 
     return (
       <DashboardContainer>
-        <Typography variant="h4">
+        <Typography variant="h4" gutterBottom>
           Nouvel étudiant
+        </Typography>
+
+        <Typography variant="body1" color="textSecondary">
+          Cette interface permet de créer un nouvel étudiant sur la plateforme si vous connaissez déjà ses détails, 
+          <strong> dont son adresse e-mail personnelle</strong>. Pour demander aux étudiants de créer leur 
+          profil, utilisez plutôt le module <Link className="link" to="/teacher/student/ask_creation">
+            demande de création de compte
+          </Link>.
         </Typography>
 
         <form className={classes.form} onSubmit={this.create}>

@@ -113,7 +113,7 @@ export default class SendAskCreationStudent extends React.Component<RouteCompone
             fullWidth
             required
             label="Adresse(s) e-mail"
-            helperText="En cas d'envoi multiples, séparez les adresses par des virgules."
+            helperText="En cas d'envois multiples, séparez les adresses par des virgules."
             type="text"
             multiline
             autoComplete="off"
